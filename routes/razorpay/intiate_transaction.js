@@ -6,11 +6,6 @@ const { invalidateToken } = require("../../helpers/helper");
 async function initiateTransaction(req, res) {
     try {
         const verifiedToken = await invalidateToken({ res, req });
-        // const verifiedToken = {
-        //     sub: 'user_2oFLUNePrbPyBH1zJL4gV4mn7Kp',
-        //     email: 'skbmasale941@gmail.com'
-        // }
-
         const subscription_type = req.body.subscription_type;
         const email = verifiedToken.email; // Get email from verifiedToken
 
