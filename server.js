@@ -9,7 +9,10 @@ startup();
 
 app.post("/upload", upload_pdf_route);
 
-// Start the server
+app.get("/", (_, res) => {
+  res.send("<h1>Hello World</h1>");
+});
+
 app.listen(PORT, () => {
     console.log(`Serve is running on http://localhost:${PORT}`);
 });

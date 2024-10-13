@@ -16,11 +16,6 @@
     "express": "^4.21.1",
     "multer": "^1.4.5-lts.1",
     "node-appwrite": "^14.1.0",
-    "node-fetch": "^3.3.2",
-    "pdf-extractor": "^2.2.0",
-    "pdf-image": "^2.0.0",
-    "pdf-lib": "^1.17.1",
-    "pdfreader": "^3.0.5",
-    "random": "^5.1.1"
+    "pdfreader": "^3.0.5"
   }
 }
