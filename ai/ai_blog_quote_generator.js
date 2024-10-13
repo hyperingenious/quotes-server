@@ -1,3 +1,4 @@
+const fs = require('fs').promises;
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const {
   FileState,
@@ -22,7 +23,6 @@ async function justFetchThem(genBlog, genQuote) {
   }
 }
 
-// A helper function that uploads the video to be cached.
 async function ai_blog_quote_generator(filePath, displayName) {
   console.log(`Starting AI blog and quote generation for file: ${filePath}`);
   const fileManager = new GoogleAIFileManager(
@@ -37,6 +37,13 @@ async function ai_blog_quote_generator(filePath, displayName) {
 
   const { name, uri } = fileResult.file;
   console.log(`File uploaded successfully. URI: ${uri}`);
+
+  try {
+    await fs.unlink(filePath);
+    console.log(`Successfully deleted the file: ${filePath}`);
+  } catch (unlinkError) {
+    console.error(`Error deleting file ${filePath}:`, unlinkError);
+  }
 
   let file = await fileManager.getFile(name);
   while (file.state === FileState.PROCESSING) {

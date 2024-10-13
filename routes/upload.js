@@ -35,6 +35,14 @@ async function handleUpload(req, res) {
 
   try {
     const { $id: bookPDFId } = await upload_pdf(filepath);
+
+    try {
+      await fs.unlink(filepath);
+      console.log(`Successfully deleted the file: ${filepath}`);
+    } catch (unlinkError) {
+      console.error(`Error deleting file ${filepath}:`, unlinkError);
+    }
+
     // const book_name = await extractBookTitle(filepath);
     const book_name = ''
 
