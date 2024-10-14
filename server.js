@@ -9,7 +9,9 @@ const PORT = process.env.PORT || 3000;
 startup();
 
 // Enable CORS for all routes
-app.use(cors());
+app.use(cors({
+  origin: "*"
+}));
 
 app.post("/upload", upload_pdf_route);
 
