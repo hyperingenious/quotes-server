@@ -35,15 +35,7 @@ async function handleUpload(req, res) {
 
   try {
     const { $id: bookPDFId } = await upload_pdf(filepath);
-
-    try {
-      await fs.unlink(filepath);
-      console.log(`Successfully deleted the file: ${filepath}`);
-    } catch (unlinkError) {
-      console.error(`Error deleting file ${filepath}:`, unlinkError);
-    }
-
-    // const book_name = await extractBookTitle(filepath);
+   // const book_name = await extractBookTitle(filepath);
     const book_name = ''
 
     const pdf_link = `https://cloud.appwrite.io/v1/storage/buckets/${process.env.BUCKET_ID}/files/${bookPDFId}/view?project=${process.env.APPWRITE_PROJECT_ID}&mode=admin`;
@@ -55,16 +47,23 @@ async function handleUpload(req, res) {
     const text = await parsePDF(filepath);
     const chunked_text = chunk(text, 5000);
 
-    const chunk_promises = chunked_text.map(chunk=>{
+  const chunk_promises = chunked_text.map(chunk => {
       const chunk_data = {
-      chunk_text: chunk,
-      books: bookEntryId
+        chunk_text: chunk,
+        books: bookEntryId
+      };
+      return upload_pdf_chunk(chunk_data);
+    });
+
+    try {
+      await Promise.all(chunk_promises);
+    } catch (error) {
+      console.error('Error uploading PDF chunks:', error);
+      throw new Error('Failed to upload PDF chunks');
     }
-    return upload_pdf_chunk(chunk_data);
-    })
 
     await Promise.all(chunk_promises);
-
+ 
     const random_chunks = random_chunk(chunked_text);
     let random_text = "";
 
@@ -87,7 +86,15 @@ async function handleUpload(req, res) {
       random_cache_model_name
     );
 
-    await add_blogs_and_quotes(blog_and_quote_chunks, bookEntryId);
+   await add_blogs_and_quotes(blog_and_quote_chunks, bookEntryId);
+
+    try {
+      await fs.unlink(filepath);
+      console.log(`Successfully deleted the file: ${filepath}`);
+    } catch (unlinkError) {
+      console.error(`Error deleting file ${filepath}:`, unlinkError);
+    }
+
   } catch (err) {
     return res.status(404).json({ error: err.message });
   }
