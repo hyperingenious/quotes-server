@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require("express");
-const corst = require('cors');
+const cors = require('cors');
 const { upload_pdf_route } = require("./routes/upload");
 const { startup } = require("./startup/startup");
 const app = express();
