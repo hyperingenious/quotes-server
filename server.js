@@ -8,9 +8,19 @@ const PORT = process.env.PORT || 3000;
 
 startup();
 
-// Enable CORS for all routes
+const allowedOrigins = [
+  "https://getsomequotes.vercel.app",
+  "http://localhost:5173"
+];
+
 app.use(cors({
-  origin: "https://getsomequotes.vercel.app"
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
 }));
 
 app.post("/upload", upload_pdf_route);

@@ -6,10 +6,10 @@ const {
 } = require("@google/generative-ai/server");
 
 const BLOG_QUERY =
-  "From all the chunks given, generate a blog out of them such that it contains the exact lines, paragraphs,and quotes. At the same time, you have to pick them in such a way that they can be understood in solitude without the need for any prior context, and it should also feel like a blog, not like you are reading an extract from a book. Organize them creatively.";
+  "From all the chunks given, generate a blog out of them such that it contains the exact lines, paragraphs,and quotes. At the same time, you have to pick them in such a way that they can be understood in solitude without the need for any prior context, and it should also feel like a blog, not like you are reading an extract from a book. Organize them creatively. The output should be in markdown format.";
 
 const QUOTE_QUERY =
-  "From all the chunks given, generate a quote out of them such that it contains the exact lines, paragraphs,and quotes. At the same time, you have to pick them in such a way that they can be understood in solitude without the need for any prior context.";
+  "From all the chunks given, generate a quote out of them such that it contains the exact lines, paragraphs,and quotes. At the same time, you have to pick them in such a way that they can be understood in solitude without the need for any prior context. and SHould not exceed 420 characters";
 
 async function uploadFile(filePath, displayName) {
   try {
