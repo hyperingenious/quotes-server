@@ -10,7 +10,7 @@ startup();
 
 // Enable CORS for all routes
 app.use(cors({
-  origin: "http://localhost:5173"
+  origin: "https://getsomequotes.vercel.app"
 }));
 
 app.post("/upload", upload_pdf_route);
