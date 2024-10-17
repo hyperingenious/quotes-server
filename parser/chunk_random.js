@@ -1,14 +1,23 @@
-function random_chunk(chunk_array) {
-  const chunk_len = chunk_array.length;
-  const twenty_percent = Math.ceil((chunk_len * 20) / 100);
-  const twenty_percent_random_chunks = [];
+function getRandomChunks(chunkArray, count) {
+  const randomChunks = [];
 
-  for (let i = 0; i < twenty_percent; i++) {
-    const randomIndex = Math.floor(Math.random() * chunk_array.length);
-    const randomChunk = chunk_array[randomIndex];
-    twenty_percent_random_chunks.push(randomChunk);
+  for (let i = 0; i < count; i++) {
+    const randomIndex = Math.floor(Math.random() * chunkArray.length);
+    const randomChunk = chunkArray[randomIndex];
+    randomChunks.push(randomChunk);
   }
-  return twenty_percent_random_chunks;
+
+  return randomChunks;
+}
+
+function random_chunk(chunk_array) {
+  const chunkCount = chunk_array.length;
+  const twentyPercentCount = Math.ceil((chunkCount * 20) / 100);
+  const minimumRequiredChunks = 32;
+
+  const count = Math.max(twentyPercentCount, minimumRequiredChunks);
+
+  return getRandomChunks(chunk_array, count);
 }
 
 module.exports = {
