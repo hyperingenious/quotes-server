@@ -19,7 +19,7 @@ async function uploadFile(filePath, displayName) {
       displayName,
       mimeType: "text/plain",
     });
-    const { name, uri } = fileResult.file;
+    const { uri} = fileResult.file;
     console.log(`File uploaded successfully. URI: ${uri}`);
     return fileResult;
   } catch (error) {

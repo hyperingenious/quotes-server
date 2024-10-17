@@ -9,9 +9,7 @@ const PORT = process.env.PORT || 3000;
 startup();
 
 // Enable CORS for all routes
-app.use(cors({
-  origin: "http://localhost:5173"
-}));
+app.use(cors());
 
 app.post("/upload", upload_pdf_route);
 
@@ -20,5 +18,5 @@ app.get("/", (_, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Serve is running on http://localhost:${PORT}`);
+  console.log(`Serve is running on http://localhost:${PORT}`);
 });
