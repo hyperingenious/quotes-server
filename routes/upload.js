@@ -48,18 +48,17 @@ async function handleUpload(req, res) {
         const text = await parsePDF(filepath);
         const chunked_text = chunk(text, 5000);
 
-        const chunk_promises = chunked_text.map(chunk => {
+        for (const chunk of chunked_text) {
           const chunk_data = {
             chunk_text: chunk,
             books: bookEntryId
           };
-          return upload_pdf_chunk(chunk_data);
-        });
-
-        await Promise.all(chunk_promises);
+          await upload_pdf_chunk(chunk_data);
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
 
         const random_chunks = random_chunk(chunked_text);
-        let random_text = "";
+        let random_text = ``;
 
         for (let i = 0; i < random_chunks.length; i++) {
           const divider = "========================================================";

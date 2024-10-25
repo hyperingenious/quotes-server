@@ -4,12 +4,12 @@ const {
   GoogleAICacheManager,
   GoogleAIFileManager,
 } = require("@google/generative-ai/server");
-
-const BLOG_QUERY =
-  "From all the chunks given, generate a blog out of them such that it contains the exact lines, paragraphs,and quotes. At the same time, you have to pick them in such a way that they can be understood in solitude without the need for any prior context, and it should also feel like a blog, not like you are reading an extract from a book. Organize them creatively. The output should be in markdown format.";
-
-const QUOTE_QUERY =
-  "From all the chunks given, generate a quote out of them such that it contains the exact lines, paragraphs,and quotes. At the same time, you have to pick them in such a way that they can be understood in solitude without the need for any prior context. and SHould not exceed 420 characters";
+const {
+  QUOTE_GENERATION_TIMER,
+  BLOG_GENERATION_TIMER,
+  BLOG_QUERY,
+  QUOTE_QUERY,
+} = require("../config/config");
 
 async function uploadFile(filePath, displayName) {
   try {
@@ -19,7 +19,7 @@ async function uploadFile(filePath, displayName) {
       displayName,
       mimeType: "text/plain",
     });
-    const { uri} = fileResult.file;
+    const { uri } = fileResult.file;
     console.log(`File uploaded successfully. URI: ${uri}`);
     return fileResult;
   } catch (error) {
@@ -103,16 +103,15 @@ async function justFetchThem(genBlog, genQuote) {
   const quote_list = [];
 
   for (let i = 0; i < 6; i++) {
-    await new Promise((resolve) => setTimeout(resolve, 7000));
+    await new Promise((resolve) => setTimeout(resolve, BLOG_GENERATION_TIMER));
     const blog = await genBlog();
     blog_list.push(blog);
   }
   for (let i = 0; i < 20; i++) {
-    await new Promise((resolve) => setTimeout(resolve, 7000));
+    await new Promise((resolve) => setTimeout(resolve, QUOTE_GENERATION_TIMER));
     const quote = await genQuote();
     quote_list.push(quote);
   }
-
   return [blog_list, quote_list];
 }
 
@@ -144,7 +143,9 @@ async function ai_blog_quote_generator(filePath, displayName) {
     }
 
     const [blog_list, quote_list] = await justFetchThem(genBlog, genQuote);
-    console.log(`Generated ${blog_list.length} blogs and ${quote_list.length} quotes`);
+    console.log(
+      `Generated ${blog_list.length} blogs and ${quote_list.length} quotes`
+    );
     return [blog_list, quote_list];
   } catch (error) {
     console.error("Error in AI blog and quote generation:", error);

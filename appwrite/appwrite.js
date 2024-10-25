@@ -22,7 +22,33 @@ const BLOGS_COLLECTION_ID = process.env.BLOGS_COLLECTION_ID;
 const QUOTE_COLLECTION_ID = process.env.QUOTE_COLLECTION_ID;
 const BUCKET_ID = process.env.BUCKET_ID;
 
-const IMAGE_EXTRACT_PATH = "../front_page_extract/";
+async function get_all_chunk_ids_with_book_id(book_id) {
+  try {
+    const response = await databases.listDocuments(
+      DATABASE_ID,
+      CHUNKS_COLLECTION_ID,
+      [sdk.Query.equal("books", book_id), sdk.Query.limit(300)]
+    );
+    return response.documents.map((doc) => doc.$id);
+  } catch (error) {
+    console.log(error.message);
+    throw error;
+  }
+}
+
+async function get_chunk_by_id(chunk_id) {
+  try {
+    const response = await databases.getDocument(
+      DATABASE_ID,
+      CHUNKS_COLLECTION_ID,
+      chunk_id
+    );
+    return response;
+  } catch (error) {
+    console.error(error.messsage);
+    throw error;
+  }
+}
 
 async function upload_pdf(pdf_path) {
   try {
@@ -66,7 +92,9 @@ async function upload_pdf_chunk(chunk_data) {
       sdk.ID.unique(),
       chunk_data
     );
-    console.log(`PDF chunk uploaded successfully. Document ID: ${response.$id}`);
+    console.log(
+      `PDF chunk uploaded successfully. Document ID: ${response.$id}`
+    );
   } catch (error) {
     console.error("Error uploading PDF chunk:", error);
     throw error;
@@ -76,8 +104,10 @@ async function upload_pdf_chunk(chunk_data) {
 async function add_blogs_and_quotes(books_and_quote_array, book_id) {
   try {
     const [blogs, quotes] = books_and_quote_array;
-    console.log(`Adding ${blogs.length} blogs and ${quotes.length} quotes for book ID: ${book_id}`);
-    
+    console.log(
+      `Adding ${blogs.length} blogs and ${quotes.length} quotes for book ID: ${book_id}`
+    );
+
     for (let i = 0; i < blogs.length; i++) {
       const blogResponse = await databases.createDocument(
         DATABASE_ID,
@@ -88,9 +118,11 @@ async function add_blogs_and_quotes(books_and_quote_array, book_id) {
           books: book_id,
         }
       );
-      console.log(`Blog ${i + 1}/${blogs.length} added. Document ID: ${blogResponse.$id}`);
+      console.log(
+        `Blog ${i + 1}/${blogs.length} added. Document ID: ${blogResponse.$id}`
+      );
     }
-    
+
     for (let i = 0; i < quotes.length; i++) {
       const quoteResponse = await databases.createDocument(
         DATABASE_ID,
@@ -98,9 +130,13 @@ async function add_blogs_and_quotes(books_and_quote_array, book_id) {
         sdk.ID.unique(),
         { quote_text: quotes[i], books: book_id }
       );
-      console.log(`Quote ${i + 1}/${quotes.length} added. Document ID: ${quoteResponse.$id}`);
+      console.log(
+        `Quote ${i + 1}/${quotes.length} added. Document ID: ${
+          quoteResponse.$id
+        }`
+      );
     }
-    
+
     console.log("All blogs and quotes added successfully");
   } catch (error) {
     console.error("Error adding blogs and quotes:", error);
@@ -109,8 +145,10 @@ async function add_blogs_and_quotes(books_and_quote_array, book_id) {
 }
 
 module.exports = {
-  upload_pdf, 
+  get_all_chunk_ids_with_book_id,
+  get_chunk_by_id,
+  upload_pdf,
   add_upload_book_entry,
   upload_pdf_chunk,
-  add_blogs_and_quotes
-}
+  add_blogs_and_quotes,
+};
