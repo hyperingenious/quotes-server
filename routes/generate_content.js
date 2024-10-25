@@ -1,3 +1,13 @@
+const {
+  get_all_chunk_ids_with_book_id,
+  get_chunk_by_id,
+  add_blogs_and_quotes,
+} = require("../appwrite/appwrite");
+const { ai_blog_quote_generator } = require("../ai/ai_blog_quote_generator");
+const { random_chunk } = require("../parser/chunk_random");
+const crypto = require("crypto");
+const fs = require("fs").promises;
+
 async function generateContent(req, res) {
   const bookId = req.query.id;
   if (!bookId) {
@@ -6,6 +16,7 @@ async function generateContent(req, res) {
 
   console.log(`Generating content for book with ID: ${bookId}`);
 
+  let random_file_name; // Declare the file name variable outside of try-catch
   try {
     const chunkIds = await get_all_chunk_ids_with_book_id(bookId);
 
@@ -29,7 +40,7 @@ async function generateContent(req, res) {
       }
     }
 
-    const random_file_name = `${crypto.randomUUID()}.txt`;
+    random_file_name = `${crypto.randomUUID()}.txt`; // Assign the file name
     await fs.writeFile(random_file_name, random_20_percent_chunk_text);
 
     const random_cache_model_name = `${crypto.randomUUID()}`;
@@ -40,14 +51,21 @@ async function generateContent(req, res) {
 
     await add_blogs_and_quotes(blog_and_quote_chunks, bookId);
 
-    // Clean up the file
-    await fs.unlink(random_file_name);
     console.log(`Content generated successfully for book with ID: ${bookId}`);
-
     return res.status(200).json({ message: "Content generated successfully" });
   } catch (error) {
     console.error(`Error generating content: ${error.message}`);
     return res.status(500).json({ message: "Internal server error" });
+  } finally {
+    // Cleanup: delete the created file if it exists
+    if (random_file_name) {
+      try {
+        await fs.unlink(random_file_name);
+        console.log(`Deleted temporary file: ${random_file_name}`);
+      } catch (cleanupError) {
+        console.error(`Error deleting file: ${cleanupError.message}`);
+      }
+    }
   }
 }
 
