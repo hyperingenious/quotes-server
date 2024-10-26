@@ -1,11 +1,13 @@
 const crypto = require("crypto");
 const multer = require("multer");
 const fs = require("fs").promises;
+const simpleFs = require("fs");
 const path = require("path");
 const chunk = require("chunk-text");
 const { parsePDF } = require("../parser/pdf_to_text");
 const { random_chunk } = require("../parser/chunk_random");
 const { ai_blog_quote_generator } = require("../ai/ai_blog_quote_generator");
+const pdf = require("pdf-extraction");
 
 const {
   upload_pdf,
@@ -13,6 +15,7 @@ const {
   upload_pdf_chunk,
   add_blogs_and_quotes,
 } = require("../appwrite/appwrite");
+const extractTitleAndAuthor = require("../parser/extractTitleAndAuthor");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -23,7 +26,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage })
+const upload = multer({ storage: storage });
 
 async function handleUpload(req, res) {
   if (!req.file) {
@@ -31,12 +34,21 @@ async function handleUpload(req, res) {
   }
 
   const filepath = path.resolve(req.file.path);
+  let dataBuffer = simpleFs.readFileSync(filepath);
+  let titleAndAuthor = {};
+
+  pdf(dataBuffer).then(function (data) {
+    titleAndAuthor = extractTitleAndAuthor(data);
+  });
 
   try {
     const { $id: bookPDFId } = await upload_pdf(filepath);
-    const book_name = ''; // Assuming no book title extraction for now
     const pdf_link = `https://cloud.appwrite.io/v1/storage/buckets/${process.env.BUCKET_ID}/files/${bookPDFId}/view?project=${process.env.APPWRITE_PROJECT_ID}&mode=admin`;
-    const book_entry_data = { book_name, pdf_link };
+    const book_entry_data = {
+      book_name: titleAndAuthor.book_name,
+      author: titleAndAuthor.author,
+      pdf_link,
+    };
 
     // Immediately send the response after uploading PDF and book entry creation
     res.send(`File uploaded successfully: ${req.file.filename}`);
@@ -44,24 +56,27 @@ async function handleUpload(req, res) {
     // Defer the remaining operations, allowing them to execute after response is sent
     setImmediate(async () => {
       try {
-        const { $id: bookEntryId } = await add_upload_book_entry(book_entry_data);
+        const { $id: bookEntryId } = await add_upload_book_entry(
+          book_entry_data
+        );
         const text = await parsePDF(filepath);
         const chunked_text = chunk(text, 5000);
 
         for (const chunk of chunked_text) {
           const chunk_data = {
             chunk_text: chunk,
-            books: bookEntryId
+            books: bookEntryId,
           };
           await upload_pdf_chunk(chunk_data);
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 100));
         }
 
         const random_chunks = random_chunk(chunked_text);
         let random_text = ``;
 
         for (let i = 0; i < random_chunks.length; i++) {
-          const divider = "========================================================";
+          const divider =
+            "========================================================";
           random_text += `${divider} ${random_chunks[i]}`;
         }
 
@@ -71,26 +86,25 @@ async function handleUpload(req, res) {
         console.log("File written successfully");
 
         const random_cache_model_name = `${crypto.randomUUID()}`;
-        const blog_and_quote_chunks = await ai_blog_quote_generator(filePath, random_cache_model_name);
+        const blog_and_quote_chunks = await ai_blog_quote_generator(
+          filePath,
+          random_cache_model_name
+        );
 
         await add_blogs_and_quotes(blog_and_quote_chunks, bookEntryId);
 
         await fs.unlink(filepath);
         console.log(`Successfully deleted the file: ${filepath}`);
       } catch (error) {
-        console.error('Error in deferred execution:', error);
+        console.error("Error in deferred execution:", error);
       }
     });
-
   } catch (err) {
     return res.status(404).json({ error: err.message });
   }
 }
 
-const upload_pdf_route = [
-  upload.single('pdf'),
-  handleUpload
-]
+const upload_pdf_route = [upload.single("pdf"), handleUpload];
 
 module.exports = {
   upload_pdf_route,
