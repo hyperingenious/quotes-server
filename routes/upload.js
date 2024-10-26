@@ -8,6 +8,7 @@ const { parsePDF } = require("../parser/pdf_to_text");
 const { random_chunk } = require("../parser/chunk_random");
 const { ai_blog_quote_generator } = require("../ai/ai_blog_quote_generator");
 const pdf = require("pdf-extraction");
+const extractTitleAndAuthor = require("../parser/extractTitleAndAuthor");
 
 const {
   upload_pdf,
@@ -15,7 +16,6 @@ const {
   upload_pdf_chunk,
   add_blogs_and_quotes,
 } = require("../appwrite/appwrite");
-const extractTitleAndAuthor = require("../parser/extractTitleAndAuthor");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -44,11 +44,7 @@ async function handleUpload(req, res) {
   try {
     const { $id: bookPDFId } = await upload_pdf(filepath);
     const pdf_link = `https://cloud.appwrite.io/v1/storage/buckets/${process.env.BUCKET_ID}/files/${bookPDFId}/view?project=${process.env.APPWRITE_PROJECT_ID}&mode=admin`;
-    const book_entry_data = {
-      book_name: titleAndAuthor.book_name,
-      author: titleAndAuthor.author,
-      pdf_link,
-    };
+    const book_entry_data = { ...titleAndAuthor, pdf_link };
 
     // Immediately send the response after uploading PDF and book entry creation
     res.send(`File uploaded successfully: ${req.file.filename}`);
