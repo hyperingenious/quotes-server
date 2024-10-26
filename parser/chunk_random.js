@@ -11,12 +11,7 @@ function getRandomChunks(chunkArray, count) {
 }
 
 function random_chunk(chunk_array) {
-  const chunkCount = chunk_array.length;
-  const twentyPercentCount = Math.ceil((chunkCount * 20) / 100);
-  const minimumRequiredChunks = 32;
-
-  const count = Math.max(twentyPercentCount, minimumRequiredChunks);
-
+  const count = 32;
   return getRandomChunks(chunk_array, count);
 }
 
