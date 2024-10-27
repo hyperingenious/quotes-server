@@ -12,6 +12,8 @@ startup();
 const allowedOrigins = [
   "https://getsomequotes.vercel.app",
   "http://localhost:5173",
+  "https://purplenight.vercel.app",
+  "https://purplenight.hyperingenious.tech"
 ];
 
 app.use(
