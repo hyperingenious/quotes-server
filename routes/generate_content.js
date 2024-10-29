@@ -3,7 +3,7 @@ const {
   get_chunk_by_id,
   add_blogs_and_quotes,
 } = require("../appwrite/appwrite");
-const { ai_blog_quote_generator } = require("../ai/ai_blog_quote_generator");
+const { ai_blog_quote_generator } = require("../ai/ai_blog_generator");
 const { random_chunk } = require("../parser/chunk_random");
 const crypto = require("crypto");
 const fs = require("fs").promises;

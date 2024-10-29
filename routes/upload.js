@@ -6,7 +6,7 @@ const path = require("path");
 const chunk = require("chunk-text");
 const { parsePDF } = require("../parser/pdf_to_text");
 const { random_chunk } = require("../parser/chunk_random");
-const { ai_blog_quote_generator } = require("../ai/ai_blog_quote_generator");
+const { ai_blog_generator } = require("../ai/ai_blog_generator");
 const pdf = require("pdf-extraction");
 const extractTitleAndAuthor = require("../parser/extractTitleAndAuthor");
 
@@ -14,7 +14,7 @@ const {
   upload_pdf,
   add_upload_book_entry,
   upload_pdf_chunk,
-  add_blogs_and_quotes,
+  add_blogs,
 } = require("../appwrite/appwrite");
 
 const storage = multer.diskStorage({
@@ -82,12 +82,12 @@ async function handleUpload(req, res) {
         console.log("File written successfully");
 
         const random_cache_model_name = `${crypto.randomUUID()}`;
-        const blog_and_quote_chunks = await ai_blog_quote_generator(
+        const blog_chunks = await ai_blog_generator(
           filePath,
           random_cache_model_name
         );
 
-        await add_blogs_and_quotes(blog_and_quote_chunks, bookEntryId);
+        await add_blogs(blog_chunks, bookEntryId);
 
         await fs.unlink(filepath);
         console.log(`Successfully deleted the file: ${filepath}`);
