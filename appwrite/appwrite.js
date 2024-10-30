@@ -23,12 +23,15 @@ const BUCKET_ID = process.env.BUCKET_ID;
 
 async function get_all_chunk_ids_with_book_id(book_id) {
   try {
-    const response = await databases.listDocuments(
+    const { total, documents } = await databases.listDocuments(
       DATABASE_ID,
       CHUNKS_COLLECTION_ID,
       [sdk.Query.equal("books", book_id), sdk.Query.limit(300)]
     );
-    return response.documents.map((doc) => doc.$id);
+
+    if (total == 0) return;
+
+    return documents.map((doc) => doc.$id);
   } catch (error) {
     console.log(error.message);
     throw error;
@@ -46,6 +49,14 @@ async function get_chunk_by_id(chunk_id) {
   } catch (error) {
     console.error(error.messsage);
     throw error;
+  }
+}
+
+async function delete_chunk_by_id(el) {
+  try {
+    await databases.deleteDocument(DATABASE_ID, CHUNKS_COLLECTION_ID, el);
+  } catch (e) {
+    throw e;
   }
 }
 
@@ -126,11 +137,80 @@ async function add_blogs(books_array, book_id) {
   }
 }
 
+async function delete_blog_by_id(el) {
+  try {
+    await databases.deleteDocument(DATABASE_ID, BLOGS_COLLECTION_ID, el);
+    return null;
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+}
+
+async function get_all_blog_ids_match_book_id(id) {
+  try {
+    const { total, documents } = await databases.listDocuments(
+      DATABASE_ID,
+      BLOGS_COLLECTION_ID,
+      [sdk.Query.equal("books", id), sdk.Query.limit(300)]
+    );
+
+    if (total == 0) return;
+
+    return documents.map((ddata) => ddata.$id);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+async function delete_book_entry_by_id(el) {
+  try {
+    await databases.deleteDocument(DATABASE_ID, BOOKS_COLLECTION_ID, el);
+    return null;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+async function delete_file_by_id(el) {
+  try {
+    await storage.deleteFile(BUCKET_ID, el);
+    return null;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function get_book_document_by_id(el) {
+  try {
+    const doc = await databases.getDocument(
+      DATABASE_ID,
+      BOOKS_COLLECTION_ID,
+      el
+    );
+    return doc;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 module.exports = {
   get_all_chunk_ids_with_book_id,
   get_chunk_by_id,
-  upload_pdf,
-  add_upload_book_entry,
+  get_book_document_by_id,
+  get_all_blog_ids_match_book_id,
+
   upload_pdf_chunk,
+  upload_pdf,
+
+  add_upload_book_entry,
   add_blogs,
+
+  delete_chunk_by_id,
+  delete_blog_by_id,
+  delete_book_entry_by_id,
+  delete_file_by_id,
 };
