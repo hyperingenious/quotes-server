@@ -18,7 +18,7 @@ const {
 } = require("../appwrite/appwrite");
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: (_, __, cb) => {
     cb(null, "uploads/");
   },
   filename: (req, file, cb) => {
