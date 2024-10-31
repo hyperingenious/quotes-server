@@ -7,8 +7,6 @@ const chunk = require("chunk-text");
 const { parsePDF } = require("../parser/pdf_to_text");
 const { random_chunk } = require("../parser/chunk_random");
 const { ai_blog_generator } = require("../ai/ai_blog_generator");
-const pdf = require("pdf-extraction");
-const extractTitleAndAuthor = require("../parser/extractTitleAndAuthor");
 
 const {
   upload_pdf,
@@ -33,6 +31,7 @@ async function handleUpload(req, res) {
   if (!req.file) {
     return res.status(400).send("No file uploaded.");
   }
+  const { authorName: author, bookTitle: book_name } = req.body; // Extract additional fields
 
   const filepath = path.resolve(req.file.path);
   let dataBuffer = simpleFs.readFileSync(filepath);
@@ -45,16 +44,12 @@ async function handleUpload(req, res) {
     return res.status(400).send("Your Book is too small, try a bigger one");
   }
 
-  let titleAndAuthor = {};
-
-  pdf(dataBuffer).then(function (data) {
-    titleAndAuthor = extractTitleAndAuthor(data);
-  });
+  let titleAndAuthor = { author, book_name };
 
   try {
     const { $id: bookPDFId } = await upload_pdf(filepath);
     const pdf_link = `https://cloud.appwrite.io/v1/storage/buckets/${process.env.BUCKET_ID}/files/${bookPDFId}/view?project=${process.env.APPWRITE_PROJECT_ID}&mode=admin`;
-    const book_entry_data = { ...titleAndAuthor, pdf_link };
+    const book_entry_data = { author, book_name, pdf_link };
 
     // Immediately send the response after uploading PDF and book entry creation
     res.send(`File uploaded successfully: ${req.file.filename}`);
