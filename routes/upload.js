@@ -16,6 +16,7 @@ const {
   upload_pdf_chunk,
   add_blogs,
 } = require("../appwrite/appwrite");
+const { getTokenCount } = require("../parser/text_to_token_len");
 
 const storage = multer.diskStorage({
   destination: (_, __, cb) => {
@@ -35,6 +36,14 @@ async function handleUpload(req, res) {
 
   const filepath = path.resolve(req.file.path);
   let dataBuffer = simpleFs.readFileSync(filepath);
+
+  const text = await parsePDF(filepath);
+  const tokenCount = await getTokenCount(text);
+
+  if (tokenCount < 50_000) {
+    return res.status(400).send("Your Book is too small, try a bigger one");
+  }
+
   let titleAndAuthor = {};
 
   pdf(dataBuffer).then(function (data) {
@@ -55,7 +64,7 @@ async function handleUpload(req, res) {
         const { $id: bookEntryId } = await add_upload_book_entry(
           book_entry_data
         );
-        const text = await parsePDF(filepath);
+
         const chunked_text = chunk(text, 5000);
 
         for (const chunk of chunked_text) {
