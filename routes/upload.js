@@ -41,6 +41,7 @@ async function handleUpload(req, res) {
   const tokenCount = await getTokenCount(text);
 
   if (tokenCount < 50_000) {
+    await fs.unlink(filepath);
     return res.status(400).send("Your Book is too small, try a bigger one");
   }
 
