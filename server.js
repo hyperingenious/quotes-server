@@ -13,6 +13,7 @@ startup();
 const allowedOrigins = [
   "http://localhost:5173",
   "https://purplenight.vercel.app",
+  "https://hyperingenious.tech",
   "https://purplenight.hyperingenious.tech",
 ];
 
