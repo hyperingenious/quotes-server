@@ -11,7 +11,6 @@ const PORT = process.env.PORT || 3000;
 startup();
 
 const allowedOrigins = [
-  "https://getsomequotes.vercel.app",
   "http://localhost:5173",
   "https://purplenight.vercel.app",
   "https://purplenight.hyperingenious.tech",
