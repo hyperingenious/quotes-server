@@ -19,6 +19,8 @@ const DATABASE_ID = process.env.DATABASE_ID;
 const BOOKS_COLLECTION_ID = process.env.BOOKS_COLLECTION_ID;
 const CHUNKS_COLLECTION_ID = process.env.CHUNKS_COLLECTION_ID;
 const BLOGS_COLLECTION_ID = process.env.BLOGS_COLLECTION_ID;
+const CONTENT_DELETION_COLLECTION_ID =
+  process.env.CONTENT_DELETION_COLLECTION_ID;
 const BUCKET_ID = process.env.BUCKET_ID;
 
 async function get_all_chunk_ids_with_book_id(book_id) {
@@ -197,20 +199,72 @@ async function get_book_document_by_id(el) {
   }
 }
 
+async function add_deletion_entry({ file_id, chunk_id_array, blog_id_array }) {
+  const chunk_ids = JSON.stringify(chunk_id_array);
+  const blog_ids = JSON.stringify(blog_id_array);
+
+  try {
+    const res = await databases.createDocument(
+      DATABASE_ID,
+      CONTENT_DELETION_COLLECTION_ID,
+      sdk.ID.unique(),
+      {
+        chunk_ids,
+        blog_ids,
+        file_id,
+      }
+    );
+    return res;
+  } catch (error) {
+    console.error("Error adding book entry:", error);
+    throw error;
+  }
+}
+
+async function get_all_deletion_entries() {
+  try {
+    const { documents } = await databases.listDocuments(
+      DATABASE_ID,
+      CONTENT_DELETION_COLLECTION_ID,
+      [sdk.Query.limit(1000000)]
+    );
+    return documents;
+  } catch (error) {
+    console.error(error.message);
+    throw error;
+  }
+}
+
+async function delet_deletion_entry(id) {
+  try {
+    await databases.deleteDocument(
+      DATABASE_ID,
+      CONTENT_DELETION_COLLECTION_ID,
+      id
+    );
+    return null;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 module.exports = {
   get_all_chunk_ids_with_book_id,
   get_chunk_by_id,
   get_book_document_by_id,
   get_all_blog_ids_match_book_id,
+  get_all_deletion_entries,
 
   upload_pdf_chunk,
   upload_pdf,
 
   add_upload_book_entry,
   add_blogs,
+  add_deletion_entry,
 
   delete_chunk_by_id,
   delete_blog_by_id,
   delete_book_entry_by_id,
   delete_file_by_id,
+  delet_deletion_entry,
 };
