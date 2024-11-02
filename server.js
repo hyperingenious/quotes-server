@@ -112,7 +112,7 @@ async function deleteBlogs(blog_ids, file_id) {
     console.error(`Error deleting blogs for file ID: ${file_id}`, error);
   }
 }
-
+/*
 // Runs from 12am to 6am
 cron.schedule("0 0-6 * * *", async () => {
   try {
@@ -131,6 +131,7 @@ cron.schedule("0 0-6 * * *", async () => {
     console.error("Error in cron job execution:", error);
   }
 });
+*/
 
 // Route definitions
 app.post("/upload", upload_pdf_route);

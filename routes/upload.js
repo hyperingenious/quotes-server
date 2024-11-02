@@ -34,7 +34,7 @@ async function handleUpload(req, res) {
   const {
     authorName: author,
     bookTitle: book_name,
-    bookImage: book_image,
+    imageUrl: book_image,
     user_id,
   } = req.body; // Extract additional fields
 
@@ -43,6 +43,8 @@ async function handleUpload(req, res) {
 
   const text = await parsePDF(filepath);
   const tokenCount = await getTokenCount(text);
+
+  console.log(tokenCount);
 
   if (tokenCount < 50_000) {
     await fs.unlink(filepath);
@@ -61,7 +63,7 @@ async function handleUpload(req, res) {
     };
 
     // Immediately send the response after uploading PDF and book entry creation
-    res.statu(200).send(`File uploaded successfully: ${req.file.filename}`);
+    res.status(200).send(`File uploaded successfully: ${req.file.filename}`);
 
     // Defer the remaining operations, allowing them to execute after response is sent
     setImmediate(async () => {
@@ -70,7 +72,7 @@ async function handleUpload(req, res) {
           book_entry_data
         );
 
-        const chunked_text = chunk(text, 5000);
+        const chunked_text = chunk(text, 10000);
 
         for (const chunk of chunked_text) {
           const chunk_data = {
@@ -78,7 +80,7 @@ async function handleUpload(req, res) {
             books: bookEntryId,
           };
           await upload_pdf_chunk(chunk_data);
-          await new Promise((resolve) => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 2000));
         }
 
         const random_chunks = random_chunk(chunked_text);
