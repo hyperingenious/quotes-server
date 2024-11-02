@@ -35,10 +35,11 @@ async function handleUpload(req, res) {
     authorName: author,
     bookTitle: book_name,
     bookImage: book_image,
+    user_id,
   } = req.body; // Extract additional fields
 
   const filepath = path.resolve(req.file.path);
-  let dataBuffer = simpleFs.readFileSync(filepath);
+  simpleFs.readFileSync(filepath);
 
   const text = await parsePDF(filepath);
   const tokenCount = await getTokenCount(text);
@@ -51,7 +52,13 @@ async function handleUpload(req, res) {
   try {
     const { $id: bookPDFId } = await upload_pdf(filepath);
     const pdf_link = `https://cloud.appwrite.io/v1/storage/buckets/${process.env.BUCKET_ID}/files/${bookPDFId}/view?project=${process.env.APPWRITE_PROJECT_ID}&mode=admin`;
-    const book_entry_data = { author, book_image, book_name, pdf_link };
+    const book_entry_data = {
+      user_id,
+      author,
+      book_image,
+      book_name,
+      pdf_link,
+    };
 
     // Immediately send the response after uploading PDF and book entry creation
     res.send(`File uploaded successfully: ${req.file.filename}`);
