@@ -61,7 +61,7 @@ async function handleUpload(req, res) {
     };
 
     // Immediately send the response after uploading PDF and book entry creation
-    res.send(`File uploaded successfully: ${req.file.filename}`);
+    res.statu(200).send(`File uploaded successfully: ${req.file.filename}`);
 
     // Defer the remaining operations, allowing them to execute after response is sent
     setImmediate(async () => {
