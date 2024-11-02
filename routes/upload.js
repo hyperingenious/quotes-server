@@ -103,7 +103,7 @@ async function handleUpload(req, res) {
           random_cache_model_name
         );
 
-        await add_blogs(blog_chunks, bookEntryId);
+        await add_blogs(blog_chunks, bookEntryId, user_id);
 
         await fs.unlink(filepath);
         console.log(`Successfully deleted the file: ${filepath}`);

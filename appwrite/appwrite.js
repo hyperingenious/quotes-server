@@ -113,7 +113,7 @@ async function upload_pdf_chunk(chunk_data) {
   }
 }
 
-async function add_blogs(books_array, book_id) {
+async function add_blogs(books_array, book_id, user_id) {
   try {
     const [blogs] = books_array;
     console.log(`Adding ${blogs.length} blogs for book ID: ${book_id}`);
@@ -126,6 +126,7 @@ async function add_blogs(books_array, book_id) {
         {
           blog_markdown: blogs[i],
           books: book_id,
+          user_id,
         }
       );
       console.log(
