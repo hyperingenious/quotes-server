@@ -46,12 +46,12 @@ async function generateContent(req, res) {
     await fs.writeFile(random_file_name, random_20_percent_chunk_text);
 
     const random_cache_model_name = `${crypto.randomUUID()}`;
-    const blog_and_quote_chunks = await ai_blog_generator(
+    const generated_blogs_array = await ai_blog_generator(
       random_file_name,
       random_cache_model_name
     );
 
-    await add_blogs(blog_and_quote_chunks, book_id, user_id);
+    await add_blogs(generated_blogs_array, book_id, user_id);
 
     console.log(`Content generated successfully for book with ID: ${book_id}`);
     return res.status(200).json({ message: "Content generated successfully" });

@@ -113,10 +113,9 @@ async function upload_pdf_chunk(chunk_data) {
   }
 }
 
-async function add_blogs(books_array, book_id, user_id) {
+async function add_blogs(blogs_array, book_id, user_id) {
   try {
-    const [blogs] = books_array;
-    console.log(`Adding ${blogs.length} blogs for book ID: ${book_id}`);
+    console.log(`Adding ${blogs_array.length} blogs for book ID: ${book_id}`);
 
     for (let i = 0; i < blogs.length; i++) {
       const blogResponse = await databases.createDocument(
@@ -124,13 +123,15 @@ async function add_blogs(books_array, book_id, user_id) {
         BLOGS_COLLECTION_ID,
         sdk.ID.unique(),
         {
-          blog_markdown: blogs[i],
+          blog_markdown: blogs_array[i],
           books: book_id,
           user_id,
         }
       );
       console.log(
-        `Blog ${i + 1}/${blogs.length} added. Document ID: ${blogResponse.$id}`
+        `Blog ${i + 1}/${blogs_array.length} added. Document ID: ${
+          blogResponse.$id
+        }`
       );
     }
     console.log("All blogs added successfully");
