@@ -9,11 +9,10 @@ const crypto = require("crypto");
 const fs = require("fs").promises;
 
 async function generateContent(req, res) {
-  console.log(req.query)
+  console.log(req.query);
   const { id: book_id, user_id } = req.query;
 
   if (!book_id) {
-    console.log(book_id)
     return res.status(400).json({ message: "Book ID is required" });
   }
 
