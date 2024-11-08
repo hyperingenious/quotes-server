@@ -1,5 +1,4 @@
 require("dotenv").config();
-const { GoogleGenerativeAI } = require("@google/generative-ai");
 const {
   FileState,
   GoogleAICacheManager,
