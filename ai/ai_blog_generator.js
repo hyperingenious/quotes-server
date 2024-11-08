@@ -120,8 +120,6 @@ async function ai_blog_generator(filePath, displayName) {
   };
 
   const blogList = await fetchBlogs(genBlog);
-  console.log(blogList.length, blogList);
-return;  
   console.log(`Generated ${blogList.length} blogs`);
   return blogList;
 }
