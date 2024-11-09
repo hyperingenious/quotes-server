@@ -117,7 +117,7 @@ async function add_blogs(blogs_array, book_id, user_id) {
   try {
     console.log(`Adding ${blogs_array.length} blogs for book ID: ${book_id}`);
 
-    for (let i = 0; i < blogs.length; i++) {
+    for (let i = 0; i < blogs_array.length; i++) {
       const blogResponse = await databases.createDocument(
         DATABASE_ID,
         BLOGS_COLLECTION_ID,
