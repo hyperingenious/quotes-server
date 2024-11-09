@@ -115,8 +115,6 @@ async function upload_pdf_chunk(chunk_data) {
 
 async function add_blogs(blogs_array, book_id, user_id) {
   try {
-    console.log(`Adding ${blogs_array.length} blogs for book ID: ${book_id}`);
-
     for (let i = 0; i < blogs_array.length; i++) {
       const blogResponse = await databases.createDocument(
         DATABASE_ID,
@@ -137,6 +135,24 @@ async function add_blogs(blogs_array, book_id, user_id) {
     console.log("All blogs added successfully");
   } catch (error) {
     console.error("Error adding blogs :", error);
+    throw error;
+  }
+}
+
+async function add_blog({ blog, book_id, user_id }) {
+  try {
+    await databases.createDocument(
+      DATABASE_ID,
+      BLOGS_COLLECTION_ID,
+      sdk.ID.unique(),
+      {
+        blog_markdown: blog,
+        books: book_id,
+        user_id,
+      }
+    );
+  } catch (error) {
+    console.error("Error adding blog", error);
     throw error;
   }
 }
@@ -262,6 +278,7 @@ module.exports = {
 
   add_upload_book_entry,
   add_blogs,
+  add_blog,
   add_deletion_entry,
 
   delete_chunk_by_id,
@@ -269,4 +286,5 @@ module.exports = {
   delete_book_entry_by_id,
   delete_file_by_id,
   delet_deletion_entry,
+
 };

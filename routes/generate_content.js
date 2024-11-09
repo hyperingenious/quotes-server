@@ -6,6 +6,10 @@ const {
 const { ai_blog_generator } = require("../ai/ai_blog_generator");
 const { random_chunk } = require("../parser/chunk_random");
 const crypto = require("crypto");
+const {
+  createFileFromRandomChunks,
+  createFileFromRandomChunksGenerateContent,
+} = require("../parser/createFileFromRandomChunks");
 const fs = require("fs").promises;
 
 async function generateContent(req, res) {
@@ -27,31 +31,15 @@ async function generateContent(req, res) {
       return res.status(404).json({ message: "No chunks found for this book" });
     }
 
-    const random_20_percent_chunkids = random_chunk(chunkIds);
-    let random_20_percent_chunk_text = ``;
-    const divider = "========================================================";
-
-    for (const chunkId of random_20_percent_chunkids) {
-      try {
-        const chunk = await get_chunk_by_id(chunkId);
-        random_20_percent_chunk_text += `${divider}\n${chunk.chunk_text}\n`;
-      } catch (error) {
-        console.error(
-          `Error retrieving chunk with ID ${chunkId}: ${error.message}`
-        );
-      }
-    }
-
-    random_file_name = `${crypto.randomUUID()}.txt`; // Assign the file name
-    await fs.writeFile(random_file_name, random_20_percent_chunk_text);
+    const filePath = await createFileFromRandomChunksGenerateContent(chunkIds);
 
     const random_cache_model_name = `${crypto.randomUUID()}`;
-    const generated_blogs_array = await ai_blog_generator(
-      random_file_name,
-      random_cache_model_name
-    );
-
-    await add_blogs(generated_blogs_array, book_id, user_id);
+    await ai_blog_generator({
+      filePath,
+      displayName: random_cache_model_name,
+      bookEntryId: book_id,
+      user_id,
+    });
 
     console.log(`Content generated successfully for book with ID: ${book_id}`);
     return res.status(200).json({ message: "Content generated successfully" });

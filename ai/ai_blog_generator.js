@@ -6,6 +6,7 @@ const {
   GoogleAIFileManager,
 } = require("@google/generative-ai/server");
 const { BLOG_GENERATION_TIMER, BLOG_QUERY } = require("../config/config");
+const { add_blog } = require("../appwrite/appwrite");
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
@@ -92,17 +93,22 @@ async function generateContent(genModel, query) {
 }
 
 // Fetch multiple blog posts
-async function fetchBlogs(genBlog, count = 6) {
-  const blogs = [];
+async function fetchBlogs({ genBlog, bookEntryId, user_id, count = 6 }) {
   for (let i = 0; i < count; i++) {
     await new Promise((resolve) => setTimeout(resolve, BLOG_GENERATION_TIMER));
-    blogs.push(await genBlog());
+    const blog = await genBlog();
+    await add_blog({ blog, book_id: bookEntryId, user_id });
+    console.log(`Generated/Uploaded ${i + 1} blog successfully`);
   }
-  return blogs;
 }
 
 // Main AI blog generator function
-async function ai_blog_generator(filePath, displayName) {
+async function ai_blog_generator({
+  filePath,
+  displayName,
+  bookEntryId,
+  user_id,
+}) {
   console.log(`Starting blog generation for file: ${filePath}`);
   const fileResult = await uploadFile(filePath, displayName);
   const { name } = fileResult.file;
@@ -119,9 +125,8 @@ async function ai_blog_generator(filePath, displayName) {
     return await generateContent(genModel, BLOG_QUERY);
   };
 
-  const blogList = await fetchBlogs(genBlog);
-  console.log(`Generated ${blogList.length} blogs`);
-  return blogList;
+  await fetchBlogs({ genBlog, bookEntryId, user_id });
+  console.log(`Uploaded all the blogs successfully blogs`);
 }
 
 module.exports = { ai_blog_generator };

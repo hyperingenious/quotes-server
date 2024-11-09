@@ -5,16 +5,17 @@ const simpleFs = require("fs");
 const path = require("path");
 const chunk = require("chunk-text");
 const { parsePDF } = require("../parser/pdf_to_text");
-const { random_chunk } = require("../parser/chunk_random");
 const { ai_blog_generator } = require("../ai/ai_blog_generator");
 
 const {
   upload_pdf,
   add_upload_book_entry,
   upload_pdf_chunk,
-  add_blogs,
 } = require("../appwrite/appwrite");
 const { getTokenCount } = require("../parser/text_to_token_len");
+const {
+  createFileFromRandomChunks,
+} = require("../parser/createFileFromRandomChunks");
 
 const storage = multer.diskStorage({
   destination: (_, __, cb) => {
@@ -68,12 +69,37 @@ async function handleUpload(req, res) {
     // Defer the remaining operations, allowing them to execute after response is sent
     setImmediate(async () => {
       try {
+        /**
+         * Adding boodk entry in the DB
+         */
         const { $id: bookEntryId } = await add_upload_book_entry(
           book_entry_data
         );
 
+        /**
+         * Chunking the text
+         */
         const chunked_text = chunk(text, 10000);
+        const filePath = await createFileFromRandomChunks(chunked_text);
+        console.log("File written successfully");
 
+        /**
+         * Content generation started
+         */
+        const random_cache_model_name = `${crypto.randomUUID()}`;
+        await ai_blog_generator({
+          filePath,
+          displayName: random_cache_model_name,
+          bookEntryId,
+          user_id,
+        });
+
+        await fs.unlink(filepath);
+        console.log(`Successfully deleted the file: ${filepath}`);
+
+        /**
+         * Uploading of the chunks starts
+         */
         for (const chunk of chunked_text) {
           const chunk_data = {
             chunk_text: chunk,
@@ -82,31 +108,7 @@ async function handleUpload(req, res) {
           await upload_pdf_chunk(chunk_data);
           await new Promise((resolve) => setTimeout(resolve, 2000));
         }
-
-        const random_chunks = random_chunk(chunked_text);
-        let random_text = ``;
-
-        for (let i = 0; i < random_chunks.length; i++) {
-          const divider =
-            "========================================================";
-          random_text += `${divider} ${random_chunks[i]}`;
-        }
-
-        const fileName = `${crypto.randomUUID()}.txt`;
-        const filePath = path.resolve(fileName);
-        await fs.writeFile(fileName, random_text);
-        console.log("File written successfully");
-
-        const random_cache_model_name = `${crypto.randomUUID()}`;
-        const blog_chunks = await ai_blog_generator(
-          filePath,
-          random_cache_model_name
-        );
-
-        await add_blogs(blog_chunks, bookEntryId, user_id);
-
-        await fs.unlink(filepath);
-        console.log(`Successfully deleted the file: ${filepath}`);
+        console.log("All the chunks successfully has been uploaded");
       } catch (error) {
         console.error("Error in deferred execution:", error);
       }
