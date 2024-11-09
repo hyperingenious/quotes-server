@@ -1,13 +1,7 @@
-const {
-  get_all_chunk_ids_with_book_id,
-  get_chunk_by_id,
-  add_blogs,
-} = require("../appwrite/appwrite");
+const { get_all_chunk_ids_with_book_id } = require("../appwrite/appwrite");
 const { ai_blog_generator } = require("../ai/ai_blog_generator");
-const { random_chunk } = require("../parser/chunk_random");
 const crypto = require("crypto");
 const {
-  createFileFromRandomChunks,
   createFileFromRandomChunksGenerateContent,
 } = require("../parser/createFileFromRandomChunks");
 const fs = require("fs").promises;
