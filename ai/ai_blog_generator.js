@@ -5,7 +5,11 @@ const {
   GoogleAICacheManager,
   GoogleAIFileManager,
 } = require("@google/generative-ai/server");
-const { BLOG_GENERATION_TIMER, BLOG_QUERY } = require("../config/config");
+const {
+  BLOG_GENERATION_TIMER,
+  BLOG_QUERY,
+  SYSTEM_INSTRUCTIONS,
+} = require("../config/config");
 const { add_blog } = require("../appwrite/appwrite");
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
@@ -48,10 +52,7 @@ async function waitForFileProcessing(fileManager, name) {
 async function createCache(fileResult, displayName) {
   const cacheManager = new GoogleAICacheManager(GOOGLE_API_KEY);
   const model = "models/gemini-1.5-flash-001";
-  const systemInstruction = `
-    You are given a text file with 1000-word chunks from books with their names.
-    Process creatively, responding in markdown with different responses each time.
-  `;
+  const systemInstruction = SYSTEM_INSTRUCTIONS;
 
   try {
     return await cacheManager.create({
