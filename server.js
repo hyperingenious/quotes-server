@@ -24,6 +24,7 @@ startup();
 
 // CORS configuration
 const allowedOrigins = [
+  "http://localhost:3000",
   "http://localhost:5173",
   "https://purplenight.vercel.app",
   "https://hyperingenious.tech",
