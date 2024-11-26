@@ -25,6 +25,7 @@ startup();
 // CORS configuration
 const allowedOrigins = [
   "http://localhost:3000",
+  "http://localhost:3001",
   "http://localhost:5173",
   "https://purplenight.vercel.app",
   "https://hyperingenious.tech",
@@ -115,7 +116,7 @@ async function deleteBlogs(blog_ids, file_id) {
 }
 
 // Runs from 12am to 6am
-cron.schedule("0 0-6 * * *", async () => {
+cron.schedule("*/10 0-5 * * *", async () => {
   try {
     const deletion_entries = await get_all_deletion_entries();
 
