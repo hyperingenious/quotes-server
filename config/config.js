@@ -1,7 +1,7 @@
 const BLOG_GENERATION_TIMER = 7000;
 const BLOG_QUERY = `Generate a blog post based on the provided text or PDF. The content should be well-structured and engaging, focusing on key themes, ideas, and arguments from the text. Include relevant direct quotes or excerpts from the document to support the main points. Follow these instructions:
 
-1. **Title**: Create a compelling and short title that reflects the main focus of the content. Example: 'Why Flowers are Beautiful?'
+1. **Title**: Create a compelling and short title that reflects the main focus of the content, Try to make unique title as possible. Example: 'Why Flowers are Beautiful?'
 
 2. **Introduction**: Write a brief and captivating introduction that sets the context, introduces the text, and teases the main ideas. Length: 75-150 words.
 
