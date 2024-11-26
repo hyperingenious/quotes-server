@@ -85,7 +85,7 @@ async function upload_pdf(pdf_path) {
     const result = await storage.createFile(
       BUCKET_ID,
       sdk.ID.unique(),
-      InputFile.fromPath(pdf_path, `${crypto.randomUUID()}.pdf`)
+      InputFile.fromPath(pdf_path, `${sdk.ID.unique}.pdf`)
     );
     console.log(`PDF uploaded successfully. File ID: ${result.$id}`);
     return result;
