@@ -1,7 +1,7 @@
 const BLOG_GENERATION_TIMER = 7000;
 const BLOG_QUERY = `Generate a blog post based on the provided text or PDF. The content should be well-structured and engaging, focusing on key themes, ideas, and arguments from the text. Include relevant direct quotes or excerpts from the document to support the main points. Follow these instructions:
 
-1. **Title**: Create a compelling and descriptive title that reflects the main focus of the content. Example: 'The Future of Reason: Key Insights from 'The End of Faith''
+1. **Title**: Create a compelling and short title that reflects the main focus of the content. Example: 'Why Flowers are Beautiful?'
 
 2. **Introduction**: Write a brief and captivating introduction that sets the context, introduces the text, and teases the main ideas. Length: 75-150 words.
 
@@ -21,7 +21,7 @@ const BLOG_QUERY = `Generate a blog post based on the provided text or PDF. The 
 
 4. **Conclusion**: Write a conclusion that summarizes the key takeaways and discusses the relevance or implications of the ideas presented. Include a final reflection on the impact of the book’s message.
 
-Make sure the content is engaging, accessible, and informative, while staying true to the original ideas of the text.`;
+Make your you have to struckete this in such a make that if contains exact lines excact paragraphs from the text you have provided`;
 
 const SYSTEM_INSTRUCTIONS = `1. **Input Type**: The input will be a text or PDF document. You need to process and extract key ideas from this text.
    
@@ -41,8 +41,8 @@ const SYSTEM_INSTRUCTIONS = `1. **Input Type**: The input will be a text or PDF 
 
 7. **Quotes and Analysis**: Include **direct quotes** from the text that are impactful. Provide analysis that explains the significance of each quote in the context of the section’s theme.`;
 
-const CONTENT_DELETION_GAP = 10_000; //10sec
-// const CONTENT_DELETION_GAP = 1000;//10sec
+// const CONTENT_DELETION_GAP = 10_000; //10sec
+const CONTENT_DELETION_GAP = 1000;//10sec
 
 module.exports = {
   BLOG_GENERATION_TIMER,
