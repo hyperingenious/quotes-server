@@ -1,6 +1,6 @@
 require("dotenv").config();
 const fs = require("fs");
-const fetch = require("node-fetch");
+const https = require("https");
 const { upload_file_with_url } = require("../appwrite/appwrite");
 
 async function generateImage({ prompt }) {
@@ -10,30 +10,42 @@ async function generateImage({ prompt }) {
   const url = `https://api.cloudflare.com/client/v4/accounts/${account_id}/ai/run/@cf/stabilityai/stable-diffusion-xl-base-1.0`;
   const apiToken = token;
 
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiToken}`,
-        "Content-Type": "application/json",
+  return new Promise((resolve, reject) => {
+    const req = https.request(
+      url,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          "Content-Type": "application/json",
+        },
       },
-      body: JSON.stringify({ prompt }),
+      (res) => {
+        let data = [];
+        res.on("data", (chunk) => {
+          data.push(chunk);
+        });
+        res.on("end", () => {
+          if (res.statusCode >= 400) {
+            reject(new Error(`HTTP error! status: ${res.statusCode}`));
+            return;
+          }
+          const buffer = Buffer.concat(data);
+          const output = { buffer };
+          const fullPath = __dirname + "/" + "output.png";
+          fs.writeFileSync(fullPath, output.buffer);
+          resolve({ path: fullPath });
+        });
+      }
+    );
+
+    req.on("error", (error) => {
+      reject(error);
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const buffer = await response.arrayBuffer(); // Read binary data
-
-    const output = { buffer: Buffer.from(buffer) };
-    const fullPath = __dirname + "/" + "output.png";
-    fs.writeFileSync(fullPath, output.buffer);
-
-    return { path: fullPath };
-  } catch (error) {
-    console.error("Error generating image:", error.message);
-  }
+    req.write(JSON.stringify({ prompt }));
+    req.end();
+  });
 }
 
 async function getPromptGeneratedImageUrl({ prompt }) {
