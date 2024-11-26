@@ -23,6 +23,23 @@ const CONTENT_DELETION_COLLECTION_ID =
   process.env.CONTENT_DELETION_COLLECTION_ID;
 const BUCKET_ID = process.env.BUCKET_ID;
 
+async function upload_file_with_url(url) {
+  try {
+    const result = await storage.createFile(
+      BUCKET_ID,
+      sdk.ID.unique(),
+      InputFile.fromPath(url, `${crypto.randomUUID}.png`)
+    );
+
+    const file_url = `https://cloud.appwrite.io/v1/storage/buckets/${result.bucketId}/files/${result.$id}/view?project=${APPWRITE_PROJECT_ID}&project=${APPWRITE_PROJECT_ID}&mode=admin`;
+
+    return file_url;
+  } catch (error) {
+    console.error("Error creating file:", error);
+    throw error;
+  }
+}
+
 async function get_all_chunk_ids_with_book_id(book_id) {
   try {
     const { total, documents } = await databases.listDocuments(
@@ -139,7 +156,7 @@ async function add_blogs(blogs_array, book_id, user_id) {
   }
 }
 
-async function add_blog({ blog, book_id, user_id }) {
+async function add_blog({ blog, book_id, user_id, blog_image }) {
   try {
     await databases.createDocument(
       DATABASE_ID,
@@ -148,6 +165,7 @@ async function add_blog({ blog, book_id, user_id }) {
       {
         blog_markdown: blog,
         books: book_id,
+        blog_image,
         user_id,
       }
     );
@@ -275,6 +293,7 @@ module.exports = {
 
   upload_pdf_chunk,
   upload_pdf,
+  upload_file_with_url,
 
   add_upload_book_entry,
   add_blogs,
@@ -286,5 +305,4 @@ module.exports = {
   delete_book_entry_by_id,
   delete_file_by_id,
   delet_deletion_entry,
-
 };

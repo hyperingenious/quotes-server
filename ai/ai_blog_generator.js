@@ -11,6 +11,8 @@ const {
   SYSTEM_INSTRUCTIONS,
 } = require("../config/config");
 const { add_blog } = require("../appwrite/appwrite");
+const { getPromptGeneratedImageUrl } = require("./image_generation");
+const { blogToPromptGeneration } = require("./blog_to_prompt");
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
@@ -98,7 +100,17 @@ async function fetchBlogs({ genBlog, bookEntryId, user_id, count = 6 }) {
   for (let i = 0; i < count; i++) {
     await new Promise((resolve) => setTimeout(resolve, BLOG_GENERATION_TIMER));
     const blog = await genBlog();
-    await add_blog({ blog, book_id: bookEntryId, user_id });
+    const blog_prompt = await blogToPromptGeneration({ blog_content: blog });
+    const blogImageUrl = await getPromptGeneratedImageUrl({
+      prompt: blog_prompt,
+    });
+    console.log(blogImageUrl);
+    await add_blog({
+      blog,
+      book_id: bookEntryId,
+      user_id,
+      blog_image: blogImageUrl,
+    });
     console.log(`Generated/Uploaded ${i + 1} blog successfully`);
   }
 }
