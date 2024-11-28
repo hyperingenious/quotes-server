@@ -2,6 +2,7 @@ require("dotenv").config();
 const fs = require("fs");
 const https = require("https");
 const { upload_file_with_url } = require("../appwrite/appwrite");
+const { compress_image } = require("../parser/compress_image");
 
 async function generateImage({ prompt }) {
   const account_id = process.env.CLOUDFARE_ACCOUT_ID;
@@ -50,13 +51,21 @@ async function generateImage({ prompt }) {
 
 async function getPromptGeneratedImageUrl({ prompt }) {
   try {
-    console.log("Generating image...");
     const image_path = await generateImage({ prompt });
     console.log("Image generated successfully:", image_path);
 
-    console.log("Uploading image to Appwrite...");
-    const hosted_url = await upload_file_with_url(image_path.path);
-    console.log("Image uploaded successfully:", hosted_url);
+    await compress_image();
+    console.log("Image compression finished");
+    const default_img_url = `${__dirname.replace(
+      "ai",
+      ""
+    )}parser/parseroutput.png`;
+
+    const hosted_url = await upload_file_with_url(default_img_url);
+    console.log("Image uploaded(appwrite):", hosted_url);
+
+    fs.unlinkSync(default_img_url);
+    console.log("File deleted successfully");
 
     return hosted_url;
   } catch (error) {
