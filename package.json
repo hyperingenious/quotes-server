@@ -11,6 +11,7 @@
   "description": "",
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
+    "axios": "^1.7.8",
     "chunk-text": "^2.0.1",
     "compress-images": "^2.0.5",
     "cors": "^2.8.5",

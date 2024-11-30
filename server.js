@@ -15,9 +15,19 @@ const {
   delet_deletion_entry,
 } = require("./appwrite/appwrite");
 const { CONTENT_DELETION_GAP } = require("./config/config");
+const { default: axios } = require("axios");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const SELF_HOSTED_URL = "https://quotes-server-z2fk.onrender.com/";
+
+// Ping the app every 10 minutes (10 * 60 * 1000 ms)
+setInterval(() => {
+  axios
+    .get(SELF_URL)
+    .then(() => console.log(`Self-pinged ${SELF_URL} successfully`))
+    .catch((error) => console.error("Self-ping failed:", error.message));
+}, 10 * 60 * 1000); // Adjust interval as needed
 
 // Initialize application
 startup();
