@@ -1,5 +1,5 @@
 const BLOG_GENERATION_TIMER = 7000;
-const BLOG_QUERY = `From the Given text you you need to generate a blog markdown such that you'll pick a random piece from extract from the text and craft a blog out of that such that you'll craft it in a manner in which you're not proving any summary of the text rather a blog post that will contain exact lines from the text such that they can be read in the isolation from the book as a story , at last I want to say try not to put your own conclusions but start it with the small introcution and the small end conclusion`;
+const BLOG_QUERY = `From the Given text you you need to generate a blog markdown such that you'll pick a random piece from extract from the text and craft a blog out of that such that you'll craft it in a manner in which you're not proving any summary of the text rather a blog post that will contain exact lines from the text such that they can be read in the isolation from the book as a story , at last I want to say try not to put your own conclusions but start it with the small introcution and the small end conclusion, also make each blog different from the last one`;
 
 const SYSTEM_INSTRUCTIONS = `1. Input Type: The input will be a text or PDF document.
 1. Output Format: The output should be a blog markdown, which is structured and engaging.
