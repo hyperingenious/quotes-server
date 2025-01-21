@@ -1,10 +1,16 @@
 const {
   get_book_document_by_id,
   get_all_blog_ids_match_book_id,
-  delete_book_entry_by_id,
   get_all_chunk_ids_with_book_id,
+} = require("../appwrite/get/get_appwrite");
+
+const {
+  delete_book_entry_by_id,
+} = require("../appwrite/delete/delete_appwrite");
+
+const {
   add_deletion_entry,
-} = require("../appwrite/appwrite");
+} = require("../appwrite/add/add_appwrite");
 
 function extractFileId(url) {
   const match = url.match(/files\/([^/]+)/);

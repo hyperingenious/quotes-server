@@ -1,4 +1,4 @@
-const { get_all_chunk_ids_with_book_id } = require("../appwrite/appwrite");
+const { get_all_chunk_ids_with_book_id } = require("../appwrite/get/get_appwrite");
 const { ai_blog_generator } = require("../ai/ai_blog_generator");
 const crypto = require("crypto");
 const {

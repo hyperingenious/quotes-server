@@ -9,9 +9,13 @@ const { ai_blog_generator } = require("../ai/ai_blog_generator");
 
 const {
   upload_pdf,
-  add_upload_book_entry,
   upload_pdf_chunk,
-} = require("../appwrite/appwrite");
+} = require("../appwrite/upload/upload_appwrite");
+
+const {
+  add_upload_book_entry,
+} = require("../appwrite/add/add_appwrite");
+
 const { getTokenCount } = require("../parser/text_to_token_len");
 const {
   createFileFromRandomChunks,
@@ -32,6 +36,7 @@ async function handleUpload(req, res) {
   if (!req.file) {
     return res.status(400).send("No file uploaded.");
   }
+
   const {
     authorName: author,
     bookTitle: book_name,
@@ -56,11 +61,7 @@ async function handleUpload(req, res) {
     const { $id: bookPDFId } = await upload_pdf(filepath);
     const pdf_link = `https://cloud.appwrite.io/v1/storage/buckets/${process.env.BUCKET_ID}/files/${bookPDFId}/view?project=${process.env.APPWRITE_PROJECT_ID}&mode=admin`;
     const book_entry_data = {
-      user_id,
-      author,
-      book_image,
-      book_name,
-      pdf_link,
+      user_id, author, book_image, book_name, pdf_link,
     };
 
     // Immediately send the response after uploading PDF and book entry creation
