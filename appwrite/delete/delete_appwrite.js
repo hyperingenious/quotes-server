@@ -1,4 +1,4 @@
-const { DATABASE_ID, TOKENISATION_COLLECTION_ID, databases, CONTENT_DELETION_COLLECTION_ID } = require("../appwrite");
+const { DATABASE_ID, BOOKS_COLLECTION_ID, databases, CONTENT_DELETION_COLLECTION_ID } = require("../appwrite");
 const sdk = require("node-appwrite");
 const { get_all_chunk_ids_with_book_id, get_all_blog_ids_match_book_id } = require("../get/get_appwrite");
 const { add_deletion_entry } = require("../add/add_appwrite");
