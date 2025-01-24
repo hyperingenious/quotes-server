@@ -2,6 +2,21 @@ const { DATABASE_ID, CHUNKS_COLLECTION_ID, databases, CONTENT_DELETION_COLLECTIO
 const sdk = require("node-appwrite");
 const { verify_token } = require("../verify/verify_appwrite");
 
+async function get_chunk_by_id(chunk_id) {
+    console.log(`Getting chunk by ID: ${chunk_id}`);
+    try {
+        const response = await databases.getDocument(
+            DATABASE_ID,
+            CHUNKS_COLLECTION_ID,
+            chunk_id
+        );
+        console.log(`Chunk retrieved successfully:`, response);
+        return response;
+    } catch (error) {
+        throw error;
+    }
+}
+
 async function get_all_chunk_ids_with_book_id(book_id) {
     console.log(`Getting all chunk IDs with book ID: ${book_id}`);
     try {
@@ -26,20 +41,6 @@ async function get_all_chunk_ids_with_book_id(book_id) {
 }
 
 
-async function get_chunk_by_id(chunk_id) {
-    console.log(`Getting chunk by ID: ${chunk_id}`);
-    try {
-        const response = await databases.getDocument(
-            DATABASE_ID,
-            CHUNKS_COLLECTION_ID,
-            chunk_id
-        );
-        console.log(`Chunk retrieved successfully:`, response);
-        return response;
-    } catch (error) {
-        throw error;
-    }
-}
 async function get_book_document_by_id(el) {
     console.log(`Getting book document by ID: ${el}`);
     try {

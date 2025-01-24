@@ -2,7 +2,7 @@ const { random_chunk } = require("./chunk_random");
 const crypto = require("crypto");
 const fs = require("fs").promises;
 const path = require("path");
-const { get_chunk_by_id } = require("../appwrite/appwrite");
+const { get_chunk_by_id } = require("../appwrite/get/get_appwrite");
 
 async function createFileFromRandomChunksGenerateContent(chunkIds) {
   const random_20_percent_chunkids = random_chunk(chunkIds);

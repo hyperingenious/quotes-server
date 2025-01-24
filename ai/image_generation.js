@@ -1,8 +1,8 @@
 require("dotenv").config();
 const fs = require("fs");
 const https = require("https");
-const { upload_file_with_url } = require("../appwrite/appwrite");
 const { compress_image } = require("../parser/compress_image");
+const { upload_file_with_url } = require("../appwrite/upload/upload_appwrite");
 
 async function generateImage({ prompt }) {
   const account_id = process.env.CLOUDFARE_ACCOUT_ID;

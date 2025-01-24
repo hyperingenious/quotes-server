@@ -1,4 +1,4 @@
-const { DATABASE_ID, databases } = require("../appwrite");
+const { DATABASE_ID, databases, storage, BUCKET_ID, CHUNKS_COLLECTION_ID, APPWRITE_PROJECT_ID } = require("../appwrite");
 const sdk = require("node-appwrite");
 const crypto = require("crypto");
 const { InputFile } = require("node-appwrite/file");

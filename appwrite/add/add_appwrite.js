@@ -1,6 +1,5 @@
-const { DATABASE_ID,  databases, CONTENT_DELETION_COLLECTION_ID, BOOKS_COLLECTION_ID, BLOGS_COLLECTION_ID } = require("../appwrite");
+const { DATABASE_ID, databases, CONTENT_DELETION_COLLECTION_ID, BOOKS_COLLECTION_ID, BLOGS_COLLECTION_ID } = require("../appwrite");
 const sdk = require("node-appwrite");
-
 
 async function add_deletion_entry({ file_id, chunk_id_array, blog_id_array }) {
     console.log("Adding deletion entry:");
@@ -93,4 +92,3 @@ module.exports = {
     add_blog,
     add_deletion_entry,
 }
-

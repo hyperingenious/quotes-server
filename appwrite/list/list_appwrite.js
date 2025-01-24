@@ -1,4 +1,4 @@
-const { DATABASE_ID, databases, BLOGS_COLLECTION_ID } = require("../appwrite");
+const { DATABASE_ID, databases, BLOGS_COLLECTION_ID, BOOKS_COLLECTION_ID } = require("../appwrite");
 const sdk = require("node-appwrite");
 const { verify_token } = require("../verify/verify_appwrite");
 
