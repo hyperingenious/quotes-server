@@ -10,6 +10,7 @@ const {
   BLOG_QUERY,
   SYSTEM_INSTRUCTIONS,
 } = require("../config/config");
+
 const { add_blog } = require("../appwrite/appwrite");
 const { getPromptGeneratedImageUrl } = require("./image_generation");
 const { blogToPromptGeneration } = require("./blog_to_prompt");
@@ -116,11 +117,7 @@ async function fetchBlogs({ genBlog, bookEntryId, user_id, count = 6 }) {
 }
 
 // Main AI blog generator function
-async function ai_blog_generator({
-  filePath,
-  displayName,
-  bookEntryId,
-  user_id,
+async function ai_blog_generator({ filePath, displayName, bookEntryId, user_id,
 }) {
   console.log(`Starting blog generation for file: ${filePath}`);
   const fileResult = await uploadFile(filePath, displayName);
