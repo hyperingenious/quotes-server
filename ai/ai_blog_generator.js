@@ -11,9 +11,9 @@ const {
   SYSTEM_INSTRUCTIONS,
 } = require("../config/config");
 
-const { add_blog } = require("../appwrite/appwrite");
 const { getPromptGeneratedImageUrl } = require("./image_generation");
 const { blogToPromptGeneration } = require("./blog_to_prompt");
+const { add_blog } = require("../appwrite/add/add_appwrite");
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
@@ -106,10 +106,7 @@ async function fetchBlogs({ genBlog, bookEntryId, user_id, count = 6 }) {
       prompt: blog_prompt,
     });
     console.log(blogImageUrl);
-    await add_blog({
-      blog,
-      book_id: bookEntryId,
-      user_id,
+    await add_blog({ blog, book_id: bookEntryId, user_id,
       blog_image: blogImageUrl,
     });
     console.log(`Generated/Uploaded ${i + 1} blog successfully`);
@@ -139,4 +136,4 @@ async function ai_blog_generator({ filePath, displayName, bookEntryId, user_id,
   console.log(`Uploaded all the blogs successfully blogs`);
 }
 
-module.exports = { ai_blog_generator };
+module.exports = { ai_blog_generator};
