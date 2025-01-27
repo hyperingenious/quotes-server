@@ -17,7 +17,6 @@ const DATABASE_ID = process.env.DATABASE_ID;
 const BLOGS_COLLECTION_ID = process.env.BLOGS_COLLECTION_ID;
 process.env.CONTENT_DELETION_COLLECTION_ID;
 
-
 async function update_blog_content_specifics({ token, documentId, updateObject }) {
     console.log(`Updating blog content specifics for document ID: ${documentId} with token: ${token}`);
     console.log("Update object:", updateObject);

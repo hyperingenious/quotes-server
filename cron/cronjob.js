@@ -1,14 +1,9 @@
 
 const cron = require("node-cron");
-const {
-    get_all_deletion_entries,
-    delete_blog_by_id,
-    delete_chunk_by_id,
-    delete_file_by_id,
-    delet_deletion_entry,
-} = require("../appwrite/appwrite");
 
 const { CONTENT_DELETION_GAP } = require("../config/config");
+const { get_all_deletion_entries } = require("../appwrite/get/get_appwrite");
+const { delete_file_by_id, delet_deletion_entry, delete_chunk_by_id, delete_blog_by_id } = require("../appwrite/delete/delete_appwrite");
 
 // Function to delete chunks and blogs
 async function processDeletion(entry) {

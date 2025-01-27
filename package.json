@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@clerk/backend": "^1.23.5",
     "@google/generative-ai": "^0.21.0",
     "axios": "^1.7.8",
     "chunk-text": "^2.0.1",

@@ -17,13 +17,13 @@ async function get_chunk_by_id(chunk_id) {
     }
 }
 
-async function get_all_chunk_ids_with_book_id(book_id) {
+async function get_all_chunk_ids_with_book_id( book_id) {
     console.log(`Getting all chunk IDs with book ID: ${book_id}`);
     try {
         const { total, documents } = await databases.listDocuments(
             DATABASE_ID,
             CHUNKS_COLLECTION_ID,
-            [sdk.Query.equal("books", [book_id]), sdk.Query.select(["$id"]), sdk.Query.limit(300)]
+            [sdk.Query.equal("books", book_id), sdk.Query.select(["$id"]), sdk.Query.limit(300)]
         );
 
         console.log(`Found ${total} chunks.`);
@@ -41,13 +41,13 @@ async function get_all_chunk_ids_with_book_id(book_id) {
 }
 
 
-async function get_book_document_by_id(el) {
-    console.log(`Getting book document by ID: ${el}`);
+async function get_book_document_by_id({ bookId, user_id }) {
+    console.log(`Getting book document by ID: ${bookId}`);
     try {
         const doc = await databases.getDocument(
             DATABASE_ID,
             BOOKS_COLLECTION_ID,
-            el
+            bookId
         );
         console.log("Book document retrieved successfully:", doc);
         return doc;
@@ -74,7 +74,6 @@ async function get_all_books({ token }) {
     }
 }
 
-
 async function get_all_deletion_entries() {
     console.log("Getting all deletion entries");
     try {
@@ -90,15 +89,13 @@ async function get_all_deletion_entries() {
     }
 }
 
-
-
-async function get_all_blog_ids_match_book_id(id) {
-    console.log(`Getting all blog IDs matching book ID: ${id}`);
+async function get_all_blog_ids_match_book_id(bookId) {
+    console.log(`Getting all blog IDs matching book ID: ${bookId}`);
     try {
         const { total, documents } = await databases.listDocuments(
             DATABASE_ID,
             BLOGS_COLLECTION_ID,
-            [sdk.Query.equal("books", [id]), sdk.Query.limit(300)]
+            [sdk.Query.equal("books", [bookId]), sdk.Query.limit(300)]
         );
 
         console.log(`Found ${total} blogs.`);

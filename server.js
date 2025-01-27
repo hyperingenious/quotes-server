@@ -7,13 +7,14 @@ const { startup } = require("./startup/startup");
 const { generateContent } = require("./routes/generate_content");
 const { deleteContent } = require("./routes/delete_content");
 
-
 const { default: axios } = require("axios");
 const { verifyToken } = require("./routes/cli/verify_token");
 const { dataDeletion } = require("./routes/cli/data_deletion");
 const { DataUpdate } = require("./routes/cli/update_blogs");
 const { get_content } = require("./routes/cli/get_content");
 const { cronjob } = require("./cron/cronjob");
+const { clientAppwritePOST } = require("./routes/client-appwrite/post");
+const { clientAppwriteGET } = require("./routes/client-appwrite/get");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -69,6 +70,9 @@ app.post("/cli/update-blogs", DataUpdate);
 app.post("/cli/generate-content", generateContent)
 app.post("/cli/get-content", get_content)
 
+/* Appwrite Client POST & GET */
+app.post("/client-appwrite-post", clientAppwritePOST)
+app.get("/client-appwrite-get", clientAppwriteGET)
 
 // Basic route
 app.get("/", (_, res) => {

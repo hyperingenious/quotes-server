@@ -1,4 +1,4 @@
-const { DATABASE_ID, BOOKS_COLLECTION_ID, databases, CONTENT_DELETION_COLLECTION_ID, CHUNKS_COLLECTION_ID, BLOGS_COLLECTION_ID } = require("../appwrite");
+const { DATABASE_ID, BOOKS_COLLECTION_ID, databases, CONTENT_DELETION_COLLECTION_ID, CHUNKS_COLLECTION_ID, BLOGS_COLLECTION_ID, storage } = require("../appwrite");
 const { get_all_chunk_ids_with_book_id, get_all_blog_ids_match_book_id } = require("../get/get_appwrite");
 const { add_deletion_entry } = require("../add/add_appwrite");
 const { verify_token } = require("../verify/verify_appwrite");
@@ -26,10 +26,10 @@ async function delete_blog_by_id(el) {
     }
 }
 
-async function delete_book_entry_by_id(el) {
-    console.log(`Deleting book entry by ID: ${el}`);
+async function delete_book_entry_by_id({ bookId }) {
+    console.log(`Deleting book entry by ID: ${bookId}`);
     try {
-        await databases.deleteDocument(DATABASE_ID, BOOKS_COLLECTION_ID, el);
+        await databases.deleteDocument(DATABASE_ID, BOOKS_COLLECTION_ID, bookId,);
         console.log("Book entry deleted successfully.");
         return null;
     } catch (error) {
