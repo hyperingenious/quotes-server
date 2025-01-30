@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const { validateWebhookSignature } = require('razorpay/dist/utils/razorpay-utils')
 
 const { upload_pdf_route } = require("./routes/upload");
 const { startup } = require("./startup/startup");
@@ -15,6 +16,7 @@ const { get_content } = require("./routes/cli/get_content");
 const { cronjob } = require("./cron/cronjob");
 const { clientAppwritePOST } = require("./routes/client-appwrite/post");
 const { clientAppwriteGET } = require("./routes/client-appwrite/get");
+const { invalidateToken } = require("./helpers/helper");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -73,6 +75,23 @@ app.post("/cli/get-content", get_content)
 /* Appwrite Client POST & GET */
 app.post("/client-appwrite-post", clientAppwritePOST)
 app.get("/client-appwrite-get", clientAppwriteGET)
+
+/* Check if subscription active 
+app.get('/check-active-subscription', async (req, res) => {
+  const verifiedToken = await invalidateToken({ res, req });
+})
+*/
+
+app.post('/bablesh', async (req, res) => {
+  const webhookBody = req.body;
+  const webhookSignature = req.headers['x-razorpay-signature']
+
+  const isValid = validateWebhookSignature(JSON.stringify(webhookBody), webhookSignature, 'YgOxQ5DdXRUb6D');
+
+  console.log(isValid)
+  return;
+})
+
 
 // Basic route
 app.get("/", (_, res) => {
