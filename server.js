@@ -88,7 +88,7 @@ app.post('/bablesh', async (req, res) => {
 
   const isValid = validateWebhookSignature(JSON.stringify(webhookBody), webhookSignature, 'YgOxQ5DdXRUb6D');
 
-  console.log(isValid)
+  console.log(isValid, webhookBody)
   return;
 })
 
