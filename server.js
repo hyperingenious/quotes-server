@@ -87,8 +87,10 @@ app.post('/bablesh', async (req, res) => {
   const webhookSignature = req.headers['x-razorpay-signature']
 
   const isValid = validateWebhookSignature(JSON.stringify(webhookBody), webhookSignature, 'kadsfuhujd98EU3Q3ew');
-
-  console.log(isValid, webhookBody)
+  if (isValid) {
+    const string = JSON.stringify(webhookBody)
+    console.log(string)
+  }
   return;
 })
 
