@@ -81,18 +81,16 @@ app.get('/check-active-subscription', async (req, res) => {
   const verifiedToken = await invalidateToken({ res, req });
 })
 */
-/*
+
 app.post('/bablesh', async (req, res) => {
   const webhookBody = req.body;
   const webhookSignature = req.headers['x-razorpay-signature']
 
-  const isValid = validateWebhookSignature(JSON.stringify(webhookBody), webhookSignature, 'YgOxQ5DdXRUb6D');
+  const isValid = validateWebhookSignature(JSON.stringify(webhookBody), webhookSignature, 'kadsfuhujd98EU3Q3ew');
 
   console.log(isValid, webhookBody)
   return;
 })
-  */
-
 
 // Basic route
 app.get("/", (_, res) => {
