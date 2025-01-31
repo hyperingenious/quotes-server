@@ -30,7 +30,7 @@ async function invalidateToken({ req, res }) {
         if (!verifiedToken) {
             return res.status(401).json({ error: 'Unauthorized' });
         }
-
+        console.log(verifiedToken)
         return verifiedToken;
 
     }
