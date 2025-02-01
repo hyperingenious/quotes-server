@@ -1,7 +1,7 @@
 require("dotenv").config();
 const { validateWebhookSignature } = require('razorpay/dist/utils/razorpay-utils')
-
 const { INITIATED_TRANSACTIONS_COLLECTION_ID, DATABASE_ID, databases } = require("../../appwrite/appwrite");
+const { add_subscription_quota, add_subscriptions_entry } = require("../../appwrite/add/add_appwrite");
 
 async function razorpayWebhookEndpoint(req, res) {
     try {
@@ -37,9 +37,12 @@ async function razorpayWebhookEndpoint(req, res) {
         const end_date = new Date(start_date);
         end_date.setDate(start_date.getDate() + 30);
 
-        await add_subscriptions_entry({ payment_id: paymentEntity.id, user_id: document.user_id, subscription_type: document.subscription_type, start_date: start_date.toISOString(), end_date: end_date.toISOString(), payment_method: paymentEntity.method, amount: paymentEntity.amount, currency: paymentEntity.currency });
-
+        const added_document = await add_subscriptions_entry({ payment_id: paymentEntity.id, user_id: document.user_id, subscription_type: document.subscription_type, start_date: start_date.toISOString(), end_date: end_date.toISOString(), payment_method: paymentEntity.method, amount: paymentEntity.amount, currency: paymentEntity.currency });
         console.log("Subscription entry added successfully.");
+
+        await add_subscription_quota({ subscription_id: added_document.$id })
+        console.log("Subscription quota entry added successfully");
+
         return;  // Return success response
     } catch (error) {
         console.error("Error processing Razorpay webhook:", error);

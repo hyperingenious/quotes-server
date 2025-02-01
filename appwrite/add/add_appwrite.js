@@ -1,4 +1,3 @@
-const { DATABASE_ID, databases, CONTENT_DELETION_COLLECTION_ID, BOOKS_COLLECTION_ID, BLOGS_COLLECTION_ID, INITIATED_TRANSACTIONS_COLLECTION_ID, SUBSCRIPTIONS_COLLECTION_ID } = require("../appwrite");
 const sdk = require("node-appwrite");
 
 async function add_deletion_entry({ file_id, chunk_id_array, blog_id_array }) {
@@ -109,6 +108,18 @@ async function add_subscriptions_entry({ payment_id, user_id, subscription_type,
                 amount, currency, payment_id, user_id, subscription_type, start_date, end_date, payment_method
             }
         );
+async function add_subscription_quota({ subscription_id }) {
+    try {
+        const document = await databases.createDocument(
+            DATABASE_ID,
+            SUBSCRIPTION_QUOTA_COLLECTION_ID,
+            sdk.ID.unique(),
+            {
+                subscriptions: subscription_id,
+                token_usage: 0, books_added: 0, blogs_generated: 0
+            }
+        );
+        return document;
     } catch (error) {
         throw error;
     }
@@ -119,6 +130,7 @@ module.exports = {
     add_blogs,
     add_blog,
     add_deletion_entry,
+    add_subscription_quota,
     add_initiate_transaction_entry,
     add_subscriptions_entry
 }
