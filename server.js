@@ -159,9 +159,10 @@ app.post('/razorpay-webhook-endpoint', async (req, res) => {
 
     if (!isValid || webhookBody.event !== 'payment_link.paid') {
       console.log("Invalid webhook signature or event type.");
-      return res.status(400).json({ error: "Bad Request" }); // Return a proper response for invalid requests.
+      return res.status(400).json({ error: "Bad Request" });
     }
 
+    console.log(JSON.stringify(webhookBody))
     const paymentLinkEntity = webhookBody.payment_link.entity;
     const paymentEntity = webhookBody.payload.payment.entity;
 
