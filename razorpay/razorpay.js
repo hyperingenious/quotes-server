@@ -56,25 +56,26 @@ async function create_payment_link({ email, subscription_type }) {
         const description = `Payment for ${subscription_type == 'reader' ? "Reader Subscription" : "Avid Reader"} subscription`;
 
         const data = {
-            "upi_link": "true",
-            "amount": 100,
-            "currency": "INR",
-            "accept_partial": false,
-            "expire_by": expireTime,
+            upi_link: "true",
+            amount: 500,
+            currency: "INR",
+            accept_partial: false,
+            first_min_partial_amount: 0,
+            expire_by: expireTime,
             reference_id,
-            "description": description,
-            "customer": {
-                "email": email
+            description: description,
+            customer: {
+                email: email
             },
-            "notify": {
-                "email": true
+            notify: {
+                email: true
             },
-            "reminder_enable": true,
-            "notes": {
-                "policy_name": description
+            reminder_enable: true,
+            notes: {
+                policy_name: description
             },
-            "callback_url": "https://dub.sh/pnight",
-            "callback_method": "get"
+            callback_url: "https://dub.sh/pnight",
+            callback_method: "get"
         }
         console.log(`Making request to ${url} with data:`, data);
         const response = await fetch(url, {
