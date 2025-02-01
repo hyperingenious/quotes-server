@@ -165,6 +165,7 @@ app.post('/razorpay-webhook-endpoint', async (req, res) => {
     console.log(JSON.stringify(webhookBody))
     const paymentLinkEntity = webhookBody.payload.payment_link.entity;
     const paymentEntity = webhookBody.payload.payment.entity;
+    console.log(paymentEntity)
 
     const document = await get_initiated_transaction_by_plink_id({ plink_id: paymentLinkEntity.id }); //Make this call async
 
@@ -176,7 +177,6 @@ app.post('/razorpay-webhook-endpoint', async (req, res) => {
     const start_date = new Date(paymentEntity.created_at);
     const end_date = new Date(start_date);
     end_date.setDate(start_date.getDate() + 30);
-
 
     await add_subscriptions_entry({
       payment_id: paymentEntity.id,
