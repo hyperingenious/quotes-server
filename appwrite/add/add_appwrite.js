@@ -106,7 +106,7 @@ async function add_subscriptions_entry({ payment_id, user_id, subscription_type,
             SUBSCRIPTIONS_COLLECTION_ID,
             sdk.ID.unique(),
             {
-                amount, currency, payment_id, user_id, subscription_type, plink_id, start_date, end_date, payment_method
+                amount, currency, payment_id, user_id, subscription_type, start_date, end_date, payment_method
             }
         );
     } catch (error) {
