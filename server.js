@@ -149,7 +149,7 @@ app.get('/initiate_transaction', async (req, res) => {
 });
 
 
-app.post('/razorpay-webhook-enpoint', async (req, res) => {
+app.post('/razorpay-webhook-endpoint', async (req, res) => {
   try {
     const webhookBody = req.body;
     const webhookSignature = req.headers['x-razorpay-signature'];
