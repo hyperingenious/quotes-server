@@ -16,7 +16,6 @@ async function razorpayWebhookEndpoint(req, res) {
             return res.status(400).json({ error: "Bad Request" });
         }
 
-        console.log(JSON.stringify(webhookBody))
         const paymentLinkEntity = webhookBody.payload.payment_link.entity;
         const paymentEntity = webhookBody.payload.payment.entity;
 
@@ -38,20 +37,10 @@ async function razorpayWebhookEndpoint(req, res) {
         const end_date = new Date(start_date);
         end_date.setDate(start_date.getDate() + 30);
 
-        await add_subscriptions_entry({
-            payment_id: paymentEntity.id,
-            user_id: document.user_id,
-            subscription_type: document.subscription_type,
-            start_date,
-            end_date,
-            payment_method: paymentEntity.method,
-            amount: paymentEntity.amount,
-            currency: paymentEntity.currency
-        });
+        await add_subscriptions_entry({ payment_id: paymentEntity.id, user_id: document.user_id, subscription_type: document.subscription_type, start_date, end_date, payment_method: paymentEntity.method, amount: paymentEntity.amount, currency: paymentEntity.currency });
 
         console.log("Subscription entry added successfully.");
         return;  // Return success response
-
     } catch (error) {
         console.error("Error processing Razorpay webhook:", error);
     }
