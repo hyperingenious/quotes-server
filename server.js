@@ -15,7 +15,7 @@ const { DataUpdate } = require("./routes/cli/update_blogs");
 const { get_content } = require("./routes/cli/get_content");
 const { cronjob } = require("./cron/cronjob");
 const { clientAppwritePOST } = require("./routes/client-appwrite/post");
-const { clientAppwriteGET } = require("./routes/client-appwrite/get");
+const { clientAppwriteGET, publicClientAppwriteGET } = require("./routes/client-appwrite/get");
 const { invalidateToken } = require("./helpers/helper");
 const { get_all_user_subscription, get_all_user_initiated_transations, get_initiated_transaction_by_plink_id } = require("./appwrite/get/get_appwrite");
 const { cancel_payment_link, create_payment_link } = require("./razorpay/razorpay");
@@ -79,6 +79,7 @@ app.post("/cli/get-content", get_content)
 /* Appwrite Client POST & GET */
 app.post("/client-appwrite-post", clientAppwritePOST)
 app.get("/client-appwrite-get", clientAppwriteGET)
+app.get("/public-client-appwrite-get", publicClientAppwriteGET)
 
 /* Initiate Transaction*/
 app.get('/initiate_transaction', async (req, res) => {

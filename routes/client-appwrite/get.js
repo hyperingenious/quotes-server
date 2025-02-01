@@ -95,13 +95,6 @@ async function clientAppwriteGET(req, res) {
                 break;
             }
 
-            case 'GET_GET_PUBLICLY_SHARED_BLOG_WITH_ID': {
-                const id = req.query.id;
-                const blog = await databases.getDocument(DATABASE_ID, PUBLICLY_SHARED_BLOGS_COLLECTION_ID, id);
-                res.status(200).json(blog);
-                break;
-            }
-
             case 'GET_GET_TOKEN_DATA': {
                 const { documents } = await databases.listDocuments(DATABASE_ID, TOKENISATION_COLLECTION_ID, [
                     sdk.Query.equal('user_id', [verifiedToken.sub]),
@@ -131,4 +124,39 @@ async function clientAppwriteGET(req, res) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
-module.exports = { clientAppwriteGET }
+
+/*
+
+curl -X GET \
+  'http://localhost:3000/public-client-appwrite-get?slug=GET_GET_PUBLICLY_SHARED_BLOG_WITH_ID&id=6756d4000039949c064d'
+
+*/
+
+async function publicClientAppwriteGET(req, res) {
+    try {
+        console.log(req.query.slug)
+
+        const slug = req.query.slug;
+        if (!slug) {
+            res.status(400).json({ error: "Bad Request", message: "Slug not found!" })
+        }
+
+        switch (slug) {
+            case 'GET_GET_PUBLICLY_SHARED_BLOG_WITH_ID': {
+                const id = req.query.id;
+                const blog = await databases.getDocument(DATABASE_ID, PUBLICLY_SHARED_BLOGS_COLLECTION_ID, id);
+                res.status(200).json(blog);
+                break;
+            }
+            default:
+                res.status(404).json({ error: 'Route not found' });
+        }
+        return;
+    }
+    catch (error) {
+        console.error(error)
+        res.status(500).json({ error: "Internal server error" })
+    }
+
+}
+module.exports = { clientAppwriteGET, publicClientAppwriteGET }
