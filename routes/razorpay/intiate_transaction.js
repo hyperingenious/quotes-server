@@ -17,7 +17,7 @@ async function initiateTransaction(req, res) {
 
         const { total, documents } = await get_all_user_subscription({ user_id: verifiedToken.sub });
 
-        if (total > 0) {
+        if (total > 0 && documents.length > 0) {
             console.log("User has existing subscriptions");
             const hasActiveSubscription = documents.some(subscri => {
                 const endDate = new Date(subscri.end_date);
@@ -61,9 +61,8 @@ async function initiateTransaction(req, res) {
         console.log("Initiate transaction entry added successfully.");
 
         console.log("Returning payment link details.");
-        res.status(200).json({ currency: payment_metadata.currency, payment_link: payment_metadata.short_url, amount: payment_metadata.amount, expire_by: payment_metadata.expire_by });
+        return res.status(200).json({ currency: payment_metadata.currency, payment_link: payment_metadata.short_url, amount: payment_metadata.amount, expire_by: payment_metadata.expire_by });
 
-        return;
     } catch (error) {
         console.error("Error in /initiate_transaction:", error);
         res.status(500).json({ error: "Internal Server Error" });
