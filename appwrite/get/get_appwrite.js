@@ -136,6 +136,7 @@ async function get_all_user_initiated_transations({ user_id }) {
 /* documentID === plink_id in initiated_transactions collection */
 async function get_initiated_transaction_by_plink_id(plink_id) {
     try {
+        console.log(plink_id)
         const document = await databases.getDocument(
             DATABASE_ID, INITIATED_TRANSACTIONS_COLLECTION_ID,
             plink_id

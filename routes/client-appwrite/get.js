@@ -124,18 +124,13 @@ async function clientAppwriteGET(req, res) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
-
 /*
-
 curl -X GET \
   'http://localhost:3000/public-client-appwrite-get?slug=GET_GET_PUBLICLY_SHARED_BLOG_WITH_ID&id=6756d4000039949c064d'
-
 */
-
 async function publicClientAppwriteGET(req, res) {
     try {
         console.log(req.query.slug)
-
         const slug = req.query.slug;
         if (!slug) {
             res.status(400).json({ error: "Bad Request", message: "Slug not found!" })
