@@ -37,7 +37,7 @@ async function razorpayWebhookEndpoint(req, res) {
         const end_date = new Date(start_date);
         end_date.setDate(start_date.getDate() + 30);
 
-        await add_subscriptions_entry({ payment_id: paymentEntity.id, user_id: document.user_id, subscription_type: document.subscription_type, start_date, end_date, payment_method: paymentEntity.method, amount: paymentEntity.amount, currency: paymentEntity.currency });
+        await add_subscriptions_entry({ payment_id: paymentEntity.id, user_id: document.user_id, subscription_type: document.subscription_type, start_date: start_date.toISOString(), end_date: end_date.toISOString(), payment_method: paymentEntity.method, amount: paymentEntity.amount, currency: paymentEntity.currency });
 
         console.log("Subscription entry added successfully.");
         return;  // Return success response
