@@ -56,7 +56,6 @@ async function create_payment_link({ email, subscription_type }) {
         const description = `Payment for ${subscription_type == 'reader' ? "Reader Subscription" : "Avid Reader"} subscription`;
 
         const data = {
-            upi_link: "true",
             amount: 500,
             currency: "INR",
             accept_partial: false,
