@@ -1,0 +1,150 @@
+/*
+{
+    "accept_partial": false,
+    "amount": 1000,
+    "amount_paid": 0,
+    "callback_method": "get",
+    "callback_url": "https://example-callback-url.com/",
+    "cancelled_at": 0,
+    "created_at": 1738332511,
+    "currency": "INR",
+    "customer": {
+        "contact": "+919000090000",
+        "email": "gaurav.kumar@example.com",
+        "name": "Gaurav Kumar"
+    },
+    "description": "Payment for policy no #23456",
+    "expire_by": 1753970911,
+    "expired_at": 0,
+    "first_min_partial_amount": 0,
+    "id": "plink_Pq4tu9A1XY4VvF",
+    "notes": {
+        "policy_name": "Jeevan Bima"
+    },
+    "notify": {
+        "email": true,
+        "sms": true,
+        "whatsapp": false
+    },
+    "payments": null,
+    "reference_id": "TS1d989",
+    "reminder_enable": true,
+    "reminders": [],
+    "short_url": "https://rzp.io/rzp/394uuu4N",
+    "status": "created",
+    "updated_at": 1738332511,
+    "upi_link": true,
+    "user_id": "",
+    "whatsapp_link": false
+}
+    */
+
+{
+    "account_id": "acc_PjmpWyXfTVTYYb",
+    "contains": [
+        "payment_link",
+        "order",
+        "payment"
+    ],
+    "created_at": 1738324204,
+    "entity": "event",
+    "event": "payment_link.paid",
+    "payload": {
+        "order": {
+            "entity": {
+                "amount": 10000,
+                "amount_due": 0,
+                "amount_paid": 10000,
+                "attempts": 1,
+                "created_at": 1738324230,
+                "currency": "INR",
+                "entity": "order",
+                "id": "order_Pq2Y721e5bn3gX",
+                "notes": [],
+                "offer_id": null,
+                "receipt": "2451234214312e",
+                "status": "paid"
+            }
+        },
+        "payment": {
+            "entity": {
+                "acquirer_data": {
+                    "rrn": "363966656963",
+                    "upi_transaction_id": "DADA87AB91436F422C3D83CCFF17207E"
+                },
+                "amount": 10000,
+                "amount_refunded": 0,
+                "amount_transferred": 0,
+                "bank": null,
+                "base_amount": 10000,
+                "captured": true,
+                "card": null,
+                "card_id": null,
+                "contact": "+918949262353",
+                "created_at": 1738324256,
+                "currency": "INR",
+                "description": "#Pq2XeplkbUpYpA",
+                "email": "void@razorpay.com",
+                "entity": "payment",
+                "error_code": null,
+                "error_description": null,
+                "error_reason": null,
+                "error_source": null,
+                "error_step": null,
+                "fee": 236,
+                "fee_bearer": "platform",
+                "id": "pay_Pq2YZHavpovVsU",
+                "international": false,
+                "invoice_id": null,
+                "method": "upi",
+                "notes": [],
+                "order_id": "order_Pq2Y721e5bn3gX",
+                "refund_status": null,
+                "status": "captured",
+                "tax": 36,
+                "upi": {
+                    "vpa": "success@razorpay"
+                },
+                "vpa": "success@razorpay",
+                "wallet": null
+            }
+        },
+        "payment_link": {
+            "entity": {
+                "accept_partial": false,
+                "amount": 10000,
+                "amount_paid": 10000,
+                "cancelled_at": 0,
+                "created_at": 1738324204,
+                "currency": "INR",
+                "customer": {
+                    "contact": "8949262353",
+                    "email": "bableh@gmail.com"
+                },
+                "description": "bablesh khalifa rocks",
+                "expire_by": 0,
+                "expired_at": 0,
+                "first_min_partial_amount": 0,
+                "id": "plink_Pq2XeplkbUpYpA",
+                "notes": null,
+                "notify": {
+                    "email": true,
+                    "sms": true,
+                    "whatsapp": false
+                },
+                "order_id": "order_Pq2Y721e5bn3gX",
+                "reference_id": "2451234214312e",
+                "reminder_enable": false,
+                "reminders": {
+                    "status": "failed"
+                },
+                "short_url": "https://rzp.io/rzp/ehmhoolb",
+                "status": "paid",
+                "updated_at": 1738324257,
+                "upi_link": false,
+                "user_id": "PjmpQJJ7TGWqtr",
+                "whatsapp_link": false
+            }
+        }
+    }
+}

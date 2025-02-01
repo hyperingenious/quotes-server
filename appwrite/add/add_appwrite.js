@@ -1,3 +1,4 @@
+const { DATABASE_ID, databases, CONTENT_DELETION_COLLECTION_ID, BOOKS_COLLECTION_ID, BLOGS_COLLECTION_ID, INITIATED_TRANSACTIONS_COLLECTION_ID, SUBSCRIPTIONS_COLLECTION_ID, SUBSCRIPTION_QUOTA_COLLECTION_ID } = require("../appwrite");
 const sdk = require("node-appwrite");
 
 async function add_deletion_entry({ file_id, chunk_id_array, blog_id_array }) {
@@ -7,7 +8,7 @@ async function add_deletion_entry({ file_id, chunk_id_array, blog_id_array }) {
     const blog_ids = JSON.stringify(blog_id_array);
 
     try {
-        const res = await databases.createDocument(
+        const document = await databases.createDocument(
             DATABASE_ID,
             CONTENT_DELETION_COLLECTION_ID,
             sdk.ID.unique(),
@@ -18,7 +19,7 @@ async function add_deletion_entry({ file_id, chunk_id_array, blog_id_array }) {
             }
         );
         console.log("Deletion entry added successfully:", res);
-        return res;
+        return document;
     } catch (error) {
         throw error;
     }
@@ -26,14 +27,14 @@ async function add_deletion_entry({ file_id, chunk_id_array, blog_id_array }) {
 async function add_upload_book_entry(data_obj) {
     console.log("Adding book entry to database:", data_obj);
     try {
-        const response = await databases.createDocument(
+        const document = await databases.createDocument(
             DATABASE_ID,
             BOOKS_COLLECTION_ID,
             sdk.ID.unique(),
             data_obj
         );
         console.log(`Book entry added successfully. Document ID: ${response.$id}`);
-        return response;
+        return document;
     } catch (error) {
         throw error;
     }
@@ -67,7 +68,7 @@ async function add_blog({ blog, book_id, user_id, blog_image }) {
     console.log(`Adding blog for book ID: ${book_id}, user ID: ${user_id}`);
     console.log("Blog data:", { blog, book_id, user_id, blog_image });
     try {
-        await databases.createDocument(
+        const document = await databases.createDocument(
             DATABASE_ID,
             BLOGS_COLLECTION_ID,
             sdk.ID.unique(),
@@ -79,13 +80,14 @@ async function add_blog({ blog, book_id, user_id, blog_image }) {
             }
         );
         console.log("Blog added successfully.");
+        return document
     } catch (error) {
         throw error;
     }
 }
 async function add_initiate_transaction_entry({ amount, currency, expire_by, user_id, subscription_type, plink_id }) {
     try {
-        await databases.createDocument(
+        const document = await databases.createDocument(
             DATABASE_ID,
             INITIATED_TRANSACTIONS_COLLECTION_ID,
             plink_id,
@@ -93,6 +95,7 @@ async function add_initiate_transaction_entry({ amount, currency, expire_by, use
                 amount, currency, expire_by, user_id, subscription_type, plink_id
             }
         );
+        return document
     } catch (error) {
         throw error;
     }
@@ -100,7 +103,7 @@ async function add_initiate_transaction_entry({ amount, currency, expire_by, use
 
 async function add_subscriptions_entry({ payment_id, user_id, subscription_type, start_date, end_date, payment_method, amount, currency }) {
     try {
-        await databases.createDocument(
+        const document = await databases.createDocument(
             DATABASE_ID,
             SUBSCRIPTIONS_COLLECTION_ID,
             sdk.ID.unique(),
@@ -108,6 +111,12 @@ async function add_subscriptions_entry({ payment_id, user_id, subscription_type,
                 amount, currency, payment_id, user_id, subscription_type, start_date, end_date, payment_method
             }
         );
+        return document;
+    } catch (error) {
+        throw error;
+    }
+}
+
 async function add_subscription_quota({ subscription_id }) {
     try {
         const document = await databases.createDocument(
