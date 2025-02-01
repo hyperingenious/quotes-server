@@ -30,6 +30,7 @@ async function invalidateToken({ req, res }) {
         if (!verifiedToken) {
             return res.status(401).json({ error: 'Unauthorized' });
         }
+
         /*
         TOKEN FORMAT 
         {
@@ -47,7 +48,7 @@ async function invalidateToken({ req, res }) {
               user_metadata: {}
               }
         */
-        console.log(verifiedToken.user_metadata)
+
         return verifiedToken;
 
     }

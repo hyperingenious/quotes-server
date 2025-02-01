@@ -1,4 +1,4 @@
-const { DATABASE_ID, CHUNKS_COLLECTION_ID, databases, CONTENT_DELETION_COLLECTION_ID, BOOKS_COLLECTION_ID, BLOGS_COLLECTION_ID } = require("../appwrite");
+const { DATABASE_ID, CHUNKS_COLLECTION_ID, databases, CONTENT_DELETION_COLLECTION_ID, BOOKS_COLLECTION_ID, BLOGS_COLLECTION_ID, SUBSCRIPTIONS_COLLECTION_ID, INITIATED_TRANSACTIONS_COLLECTION_ID } = require("../appwrite");
 const sdk = require("node-appwrite");
 const { verify_token } = require("../verify/verify_appwrite");
 
@@ -17,7 +17,7 @@ async function get_chunk_by_id(chunk_id) {
     }
 }
 
-async function get_all_chunk_ids_with_book_id( book_id) {
+async function get_all_chunk_ids_with_book_id(book_id) {
     console.log(`Getting all chunk IDs with book ID: ${book_id}`);
     try {
         const { total, documents } = await databases.listDocuments(
@@ -108,6 +108,43 @@ async function get_all_blog_ids_match_book_id(bookId) {
         throw error;
     }
 }
+
+async function get_all_user_subscription({ user_id }) {
+    try {
+        const { total, documents } = await databases.listDocuments(
+            DATABASE_ID, SUBSCRIPTIONS_COLLECTION_ID,
+            [sdk.Query.equal('user_id', user_id)]
+        )
+        return { total, documents }
+    } catch (error) {
+        console.error(error); throw new Error(error)
+    }
+}
+
+async function get_all_user_initiated_transations({ user_id }) {
+    try {
+        const { total, documents } = await databases.listDocuments(
+            DATABASE_ID, INITIATED_TRANSACTIONS_COLLECTION_ID,
+            [sdk.Query.equal('user_id', user_id)]
+        )
+        return { total, documents }
+    } catch (error) {
+        console.error(error); throw new Error(error)
+    }
+}
+
+/* documentID === plink_id in initiated_transactions collection */
+async function get_initiated_transaction_by_plink_id({ plink_id }) {
+    try {
+        const document = await databases.getDocument(
+            DATABASE_ID, INITIATED_TRANSACTIONS_COLLECTION_ID,
+            plink_id
+        )
+        return document
+    } catch (error) {
+        console.error(error); throw new Error(error)
+    }
+}
 module.exports = {
     get_all_chunk_ids_with_book_id,
     get_chunk_by_id,
@@ -115,4 +152,7 @@ module.exports = {
     get_all_blog_ids_match_book_id,
     get_all_deletion_entries,
     get_all_books,
+    get_all_user_subscription,
+    get_initiated_transaction_by_plink_id,
+    get_all_user_initiated_transations
 }

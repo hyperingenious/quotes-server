@@ -1,4 +1,4 @@
-const { DATABASE_ID, databases, CONTENT_DELETION_COLLECTION_ID, BOOKS_COLLECTION_ID, BLOGS_COLLECTION_ID } = require("../appwrite");
+const { DATABASE_ID, databases, CONTENT_DELETION_COLLECTION_ID, BOOKS_COLLECTION_ID, BLOGS_COLLECTION_ID, INITIATED_TRANSACTIONS_COLLECTION_ID, SUBSCRIPTIONS_COLLECTION_ID } = require("../appwrite");
 const sdk = require("node-appwrite");
 
 async function add_deletion_entry({ file_id, chunk_id_array, blog_id_array }) {
@@ -84,11 +84,41 @@ async function add_blog({ blog, book_id, user_id, blog_image }) {
         throw error;
     }
 }
+async function add_initiate_transaction_entry({ amount, currency, expire_by, user_id, subscription_type, plink_id }) {
+    try {
+        await databases.createDocument(
+            DATABASE_ID,
+            INITIATED_TRANSACTIONS_COLLECTION_ID,
+            plink_id,
+            {
+                amount, currency, expire_by, user_id, subscription_type, plink_id
+            }
+        );
+    } catch (error) {
+        throw error;
+    }
+}
 
+async function add_subscriptions_entry({ payment_id, user_id, subscription_type, start_date, end_date, payment_method, amount, currency }) {
+    try {
+        await databases.createDocument(
+            DATABASE_ID,
+            SUBSCRIPTIONS_COLLECTION_ID,
+            sdk.ID.unique(),
+            {
+                amount, currency, payment_id, user_id, subscription_type, plink_id, start_date, end_date, payment_method
+            }
+        );
+    } catch (error) {
+        throw error;
+    }
+}
 
 module.exports = {
     add_upload_book_entry,
     add_blogs,
     add_blog,
     add_deletion_entry,
+    add_initiate_transaction_entry,
+    add_subscriptions_entry
 }
