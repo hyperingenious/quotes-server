@@ -58,8 +58,6 @@ async function create_payment_link({ email, subscription_type }) {
         const data = {
             amount: 500,
             currency: "INR",
-            accept_partial: false,
-            first_min_partial_amount: 500,
             expire_by: expireTime,
             reference_id,
             description: description,
