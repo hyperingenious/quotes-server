@@ -166,6 +166,7 @@ app.post('/razorpay-webhook-endpoint', async (req, res) => {
     const paymentEntity = webhookBody.payload.payment.entity;
 
     const plink_id = paymentLinkEntity.id
+    console.log(plink_id)
 
     const document = await get_initiated_transaction_by_plink_id(plink_id); //Make this call async
 
