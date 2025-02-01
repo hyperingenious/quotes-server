@@ -57,7 +57,7 @@ async function create_payment_link({ email, subscription_type }) {
 
         const data = {
             upi_link: "true",
-            amount: 500,
+            amount: 5000,
             currency: "INR",
             accept_partial: false,
             first_min_partial_amount: 0,
