@@ -57,7 +57,7 @@ async function create_payment_link({ email, subscription_type }) {
 
         const data = {
             "upi_link": "true",
-            "amount": amount,
+            "amount": 100,
             "currency": "INR",
             "accept_partial": false,
             "expire_by": expireTime,
