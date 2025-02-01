@@ -155,7 +155,7 @@ app.post('/razorpay-webhook-endpoint', async (req, res) => {
     const webhookSignature = req.headers['x-razorpay-signature'];
 
     // Validate webhook signature.  The validateWebhookSignature function needs to be defined elsewhere.
-    const isValid = validateWebhookSignature(JSON.stringify(webhookBody), webhookSignature, process.env.RAZORPAY_WEBHOOK_SECRET);
+    const isValid = validateWebhookSignature(JSON.stringify(webhookBody), webhookSignature, '9g2rT5C4FA9oKOwFn/CcKk5yMO/BOYBWOr52LIoappY0hCbK8RrQpF')
 
     if (!isValid || webhookBody.event !== 'payment_link.paid') {
       console.log("Invalid webhook signature or event type.");
