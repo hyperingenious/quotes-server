@@ -148,7 +148,6 @@ app.get('/initiate_transaction', async (req, res) => {
   }
 });
 
-
 app.post('/razorpay-webhook-endpoint', async (req, res) => {
   try {
     const webhookBody = req.body;
@@ -168,7 +167,7 @@ app.post('/razorpay-webhook-endpoint', async (req, res) => {
 
     const plink_id = paymentLinkEntity.id
 
-    const document = await get_initiated_transaction_by_plink_id({ plink_id }); //Make this call async
+    const document = await get_initiated_transaction_by_plink_id(plink_id); //Make this call async
 
     if (!document) {
       console.log("Initiated transaction not found for payment link ID:", paymentLinkEntity.id);

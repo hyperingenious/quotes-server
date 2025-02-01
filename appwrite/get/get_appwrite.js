@@ -134,15 +134,19 @@ async function get_all_user_initiated_transations({ user_id }) {
 }
 
 /* documentID === plink_id in initiated_transactions collection */
-async function get_initiated_transaction_by_plink_id({ plink_id }) {
+async function get_initiated_transaction_by_plink_id(plink_id) {
     try {
         const document = await databases.getDocument(
             DATABASE_ID, INITIATED_TRANSACTIONS_COLLECTION_ID,
             plink_id
-        )
-        return document
+        );
+        return document;
     } catch (error) {
-        console.error(error); throw new Error(error)
+        if (error.response && error.response.data && error.response.data.message === 'document not found') {
+            return null; // Return null if document not found
+        }
+        console.error("Error in get_initiated_transaction_by_plink_id:", error);
+        throw new Error(`Failed to get initiated transaction: ${error.message}`); //More informative error message
     }
 }
 module.exports = {
