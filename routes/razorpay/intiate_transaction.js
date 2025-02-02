@@ -1,5 +1,5 @@
 const { get_all_user_subscription, get_all_user_initiated_transations } = require("../../appwrite/get/get_appwrite");
-const { cancel_payment_link, create_payment_link } = require("../../razorpay/razorpay");
+const { create_payment_link } = require("../../razorpay/razorpay");
 const { add_initiate_transaction_entry, } = require("../../appwrite/add/add_appwrite");
 
 async function initiateTransaction(req, res) {
@@ -41,8 +41,6 @@ async function initiateTransaction(req, res) {
             for (const doc of documents_2) { // Use for...of loop for better readability
                 const today = Math.floor(new Date().getTime() / 1000)
                 if (doc.expire_by > today) {
-                    console.log("Cancelling existing payment link with plink_id");
-                    await cancel_payment_link({ plink_id: doc.plink_id });
                     return res.status(400).json({ error: "Bad request", message: "User already has an initiated transactions, please try again later" });
                 }
             }
