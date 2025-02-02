@@ -16,6 +16,7 @@ const sdk = require("node-appwrite");
  */
 async function razorpayWebhookEndpoint(req, res) {
     try {
+        res.json({ status: 'ok' })
         // Retrieve webhook data from request
         const webhookBody = req.body;
         const webhookSignature = req.headers['x-razorpay-signature'];
