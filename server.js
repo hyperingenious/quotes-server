@@ -78,7 +78,7 @@ app.get("/client-appwrite-get", clientAppwriteGET)
 app.get("/public-client-appwrite-get", publicClientAppwriteGET)
 
 /* Initiate Transaction*/
-app.get('/initiate_transaction', initiateTransaction);
+app.get('/initiate-transaction', initiateTransaction);
 app.post('/razorpay-webhook-endpoint', razorpayWebhookEndpoint);
 
 // Basic route
