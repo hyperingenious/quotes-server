@@ -16,12 +16,16 @@ async function initiateTransaction(req, res) {
         console.log("Initiate Transaction Request:");
 
         const { total, documents } = await get_all_user_subscription({ user_id: verifiedToken.sub });
+        console.log('total', total)
 
         if (total > 0 && documents.length > 0) {
             console.log("User has existing subscriptions");
             const hasActiveSubscription = documents.some(subscri => {
-                const endDate = new Date(subscri.end_date);
-                return endDate > new Date();
+
+                const endDate = subscri.end_date
+                const comparison = endDate > Math.floor(new Date().getTime() / 1000)
+                console.log(comparison)
+                return comparison;
             });
             if (hasActiveSubscription) {
                 console.log("User has an active subscription.");
@@ -32,13 +36,14 @@ async function initiateTransaction(req, res) {
         }
 
         const { total: total_2, documents: documents_2 } = await get_all_user_initiated_transations({ user_id: verifiedToken.sub }); // Use verifiedToken.sub
-        if (total_2 > 0) {
+        if (total_2 > 0 && documents_2.length > 0) {
             console.log("User has existing initiated transactions");
             for (const doc of documents_2) { // Use for...of loop for better readability
-                const expireDate = new Date(doc.expire_by);
-                if (expireDate > new Date()) {
+                const today = Math.floor(new Date().getTime() / 1000)
+                if (doc.expire_by > today) {
                     console.log("Cancelling existing payment link with plink_id");
                     await cancel_payment_link({ plink_id: doc.plink_id });
+                    return res.status(400).json({ error: "Bad request", message: "User already has an initiated transactions, please try again later" });
                 }
             }
         } else {
@@ -53,7 +58,7 @@ async function initiateTransaction(req, res) {
         await add_initiate_transaction_entry({
             amount: payment_metadata.amount,
             currency: payment_metadata.currency,
-            expire_by: new Date(payment_metadata.expire_by),
+            expire_by: payment_metadata.expire_by,
             user_id: verifiedToken.sub,
             subscription_type, // Assuming subscription_id is not available here.  Add if available.
             plink_id: payment_metadata.id,

@@ -48,7 +48,7 @@ async function razorpayWebhookEndpoint(req, res) {
         }
 
         // Calculate subscription start and end dates.  Assumes a 30-day subscription.
-        const start_date = new Date(paymentEntity.created_at * 1000);
+        const start_date = new Date(paymentEntity.created_at * 1000)
         const end_date = new Date(start_date);
         end_date.setDate(start_date.getDate() + 30);
 
@@ -64,8 +64,8 @@ async function razorpayWebhookEndpoint(req, res) {
             payment_id: paymentEntity.id,
             user_id: document.user_id,
             subscription_type: document.subscription_type,
-            start_date: start_date.toISOString(),
-            end_date: end_date.toISOString(),
+            start_date: Math.floor(start_date.getTime() / 1000),
+            end_date: Math.floor(end_date.getTime() / 1000),
             payment_method: paymentEntity.method,
             amount: paymentEntity.amount,
             currency: paymentEntity.currency
