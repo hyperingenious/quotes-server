@@ -78,6 +78,7 @@ async function handleUpload(req, res) {
       bookTitle: book_name,
       imageUrl: book_image,
     } = req.body; // Extract additional fields
+    const subscriptionQuota = req.subscriptionQuota
 
     /**
      * Resolves the file path.
@@ -161,6 +162,7 @@ async function handleUpload(req, res) {
          */
         const random_cache_model_name = `${crypto.randomUUID()}`;
         await ai_blog_generator({
+          subscriptionQuota,
           filePath,
           displayName: random_cache_model_name,
           bookEntryId,

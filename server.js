@@ -64,7 +64,7 @@ app.use(express.json());
 cronjob("*/10 0-5 * * *")
 
 // Route definitions
-app.post("/upload", upload_pdf_route);
+app.post("/upload", userSubscriptionQuota, upload_pdf_route);
 app.post("/generate-content", userSubscriptionQuota, generateContent);
 app.post("/delete-content", deleteContent);
 
