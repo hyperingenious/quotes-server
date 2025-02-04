@@ -18,6 +18,8 @@ const { clientAppwriteGET, publicClientAppwriteGET } = require("./routes/client-
 const { initiateTransaction } = require("./routes/razorpay/intiate_transaction");
 const { razorpayWebhookEndpoint } = require("./routes/razorpay/webhook-endpoint");
 
+const { getSubscription } = require("./routes/get_subscription");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const SELF_HOSTED_URL = "https://quotes-server-z2fk.onrender.com/";
@@ -80,6 +82,9 @@ app.get("/public-client-appwrite-get", publicClientAppwriteGET)
 /* Initiate Transaction*/
 app.get('/initiate-transaction', initiateTransaction);
 app.post('/razorpay-webhook-endpoint', razorpayWebhookEndpoint);
+
+
+app.get('/get-subscription', getSubscription);
 
 // Basic route
 app.get("/", (_, res) => {
