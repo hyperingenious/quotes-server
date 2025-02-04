@@ -10,7 +10,7 @@ async function get_chunk_by_id(chunk_id) {
             CHUNKS_COLLECTION_ID,
             chunk_id
         );
-        console.log(`Chunk retrieved successfully:`, response);
+        console.log(`Chunk retrieved successfully:`, response.$id);
         return response;
     } catch (error) {
         throw error;
