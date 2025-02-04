@@ -19,6 +19,7 @@ const { initiateTransaction } = require("./routes/razorpay/intiate_transaction")
 const { razorpayWebhookEndpoint } = require("./routes/razorpay/webhook-endpoint");
 
 const { getSubscription } = require("./routes/get_subscription");
+const { userSubscriptionQuota } = require("./middlewares/user_subscription_quota");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -64,7 +65,7 @@ cronjob("*/10 0-5 * * *")
 
 // Route definitions
 app.post("/upload", upload_pdf_route);
-app.post("/generate-content", generateContent);
+app.post("/generate-content", userSubscriptionQuota, generateContent);
 app.post("/delete-content", deleteContent);
 
 // CLI
@@ -82,7 +83,6 @@ app.get("/public-client-appwrite-get", publicClientAppwriteGET)
 /* Initiate Transaction*/
 app.get('/initiate-transaction', initiateTransaction);
 app.post('/razorpay-webhook-endpoint', razorpayWebhookEndpoint);
-
 
 app.get('/get-subscription', getSubscription);
 
