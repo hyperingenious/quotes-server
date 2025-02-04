@@ -1,8 +1,10 @@
 require("dotenv").config();
 const { databases, DATABASE_ID, SUBSCRIPTIONS_COLLECTION_ID, SUBSCRIPTION_QUOTA_COLLECTION_ID } = require('../appwrite/appwrite');
 const sdk = require("node-appwrite");
+const { invalidateToken } = require("../helpers/helper");
 
 async function getSubscription(req, res) {
+    
     try {
         const verifiedToken = await invalidateToken({ res, req });
 
