@@ -4,11 +4,11 @@ const { add_initiate_transaction_entry, } = require("../../appwrite/add/add_appw
 
 async function initiateTransaction(req, res) {
     try {
-        // const verifiedToken = await invalidateToken({ res, req });
-        const verifiedToken = {
-            sub: 'user_2oFLUNePrbPyBH1zJL4gV4mn7Kp',
-            email: 'skbmasale941@gmail.com'
-        }
+        const verifiedToken = await invalidateToken({ res, req });
+        // const verifiedToken = {
+        //     sub: 'user_2oFLUNePrbPyBH1zJL4gV4mn7Kp',
+        //     email: 'skbmasale941@gmail.com'
+        // }
 
         const subscription_type = req.query.subscription_type;
         const email = verifiedToken.email; // Get email from verifiedToken

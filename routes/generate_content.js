@@ -23,6 +23,10 @@ async function generateContent(req, res) {
   * Verifies the user's token using the invalidateToken helper function to ensure authentication.
   */
   const verifiedToken = await invalidateToken({ req, res });
+  // const verifiedToken = {
+  //   sub: 'user_2oFLUNePrbPyBH1zJL4gV4mn7Kp',
+  //   email: 'skbmasale941@gmail.com'
+  // }
 
   /**
    * Checks if a book ID is provided in the request. Returns a 400 error if not.
