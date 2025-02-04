@@ -74,7 +74,7 @@ async function razorpayWebhookEndpoint(req, res) {
         console.log("Subscription entry added successfully.");
 
         // Add subscription quota entry to Appwrite database.
-        await add_subscription_quota({ subscription_id: added_document.$id });
+        await add_subscription_quota({ subscription_type: document.subscription_type, subscription_id: added_document.$id });
         console.log("Subscription quota entry added successfully");
 
         // Return success response

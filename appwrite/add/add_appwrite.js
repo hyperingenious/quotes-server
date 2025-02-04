@@ -117,7 +117,7 @@ async function add_subscriptions_entry({ payment_id, user_id, subscription_type,
     }
 }
 
-async function add_subscription_quota({ subscription_id }) {
+async function add_subscription_quota({ subscription_id, subscription_type }) {
     try {
         const document = await databases.createDocument(
             DATABASE_ID,
@@ -125,7 +125,7 @@ async function add_subscription_quota({ subscription_id }) {
             sdk.ID.unique(),
             {
                 subscriptions: subscription_id,
-                token_usage: 0, books_added: 0, blogs_generated: 0
+                token_usage: 0, books_added: 0, blogs_generated: 0, allocated_blog_quota: subscription_type === 'reader' ? 300 : 1000
             }
         );
         return document;
