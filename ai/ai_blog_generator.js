@@ -1,4 +1,3 @@
-require("dotenv").config();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const {
   FileState,
@@ -15,6 +14,7 @@ const {
 const { getPromptGeneratedImageUrl } = require("./image_generation");
 const { blogToPromptGeneration } = require("./blog_to_prompt");
 const { add_blog } = require("../appwrite/add/add_appwrite");
+const { databases, DATABASE_ID, SUBSCRIPTION_QUOTA_COLLECTION_ID } = require("../appwrite/appwrite");
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
@@ -90,6 +90,7 @@ async function generateContent(genModel, query) {
     const result = await genModel.generateContent({
       contents: [{ role: "user", parts: [{ text: query }] }],
     });
+    console.log(result)
     return result.response.text();
   } catch (error) {
     console.error("Content generation error:", error);
@@ -98,7 +99,7 @@ async function generateContent(genModel, query) {
 }
 
 // Fetch multiple blog posts
-async function fetchBlogs({ genBlog, bookEntryId, user_id, count = 6 }) {
+async function fetchBlogs({ subscriptionQuota, genBlog, bookEntryId, user_id, count = 6 }) {
   for (let i = 0; i < count; i++) {
     await new Promise((resolve) => setTimeout(resolve, BLOG_GENERATION_TIMER));
     const blog = await genBlog();
@@ -107,15 +108,25 @@ async function fetchBlogs({ genBlog, bookEntryId, user_id, count = 6 }) {
       prompt: blog_prompt,
     });
     console.log(blogImageUrl);
-    await add_blog({ blog, book_id: bookEntryId, user_id,
+    await add_blog({
+      blog, book_id: bookEntryId, user_id,
       blog_image: blogImageUrl,
     });
+
+    /**
+     * Updating the subscription quota exactly after uploading each blog
+     */
+    console.log(`Subscription Quota updated by: ${i + 1} `)
+    await databases.updateDocument(DATABASE_ID, SUBSCRIPTION_QUOTA_COLLECTION_ID, subscriptionQuota.$id, {
+      blogs_generated: subscriptionQuota.blogs_generated + (i + 1)
+    })
+
     console.log(`Generated/Uploaded ${i + 1} blog successfully`);
   }
 }
 
 // Main AI blog generator function
-async function ai_blog_generator({ filePath, displayName, bookEntryId, user_id,
+async function ai_blog_generator({ subscriptionQuota, filePath, displayName, bookEntryId, user_id,
 }) {
   console.log(`Starting blog generation for file: ${filePath}`);
   const fileResult = await uploadFile(filePath, displayName);
@@ -133,8 +144,8 @@ async function ai_blog_generator({ filePath, displayName, bookEntryId, user_id,
     return await generateContent(genModel, BLOG_QUERY);
   };
 
-  await fetchBlogs({ genBlog, bookEntryId, user_id });
+  await fetchBlogs({ subscriptionQuota, genBlog, bookEntryId, user_id });
   console.log(`Uploaded all the blogs successfully blogs`);
 }
 
-module.exports = { ai_blog_generator};
+module.exports = { ai_blog_generator };

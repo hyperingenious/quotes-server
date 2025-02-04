@@ -18,10 +18,12 @@ const fs = require("fs").promises;
 async function generateContent(req, res) {
   console.log(req.query);
   const { id: book_id } = req.query;
+  const subscriptionQuota = req.subscriptionQuota
 
   /**
   * Verifies the user's token using the invalidateToken helper function to ensure authentication.
   */
+
   const verifiedToken = await invalidateToken({ req, res });
   // const verifiedToken = {
   //   sub: 'user_2oFLUNePrbPyBH1zJL4gV4mn7Kp',
@@ -66,6 +68,7 @@ async function generateContent(req, res) {
      */
     const random_cache_model_name = `${crypto.randomUUID()}`;
     await ai_blog_generator({
+      subscriptionQuota,
       filePath,
       displayName: random_cache_model_name,
       bookEntryId: book_id,

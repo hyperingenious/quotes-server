@@ -10,6 +10,11 @@ async function userSubscriptionQuota(req, res, next) {
           */
         const verifiedToken = await invalidateToken({ req, res });
 
+        // const verifiedToken = {
+        //     sub: 'user_2oFLUNePrbPyBH1zJL4gV4mn7Kp',
+        //     email: 'skbmasale941@gmail.com'
+        // }
+
         const { documents } = await databases.listDocuments(DATABASE_ID, SUBSCRIPTIONS_COLLECTION_ID, [sdk.Query.equal('user_id', verifiedToken.sub)]);
 
         const currentDate = Math.floor(new Date().getTime() / 1000);
@@ -29,6 +34,7 @@ async function userSubscriptionQuota(req, res, next) {
                      * If generated blogs doesn't exceeds allocated quota, executes further
                      */
                     if (subscriptionQuota.allocated_blog_quota > subscriptionQuota.blogs_generated) {
+                        req.subscriptionQuota = subscriptionQuota
                         next()
                         return;
                     }
@@ -47,7 +53,6 @@ async function userSubscriptionQuota(req, res, next) {
         }
 
         return res.status(404).json({ error: "Not Found", message: "Subscription Not found" })
-
     } catch (error) {
         console.error(error)
         return res.status(500).json({ error: "Internal Server Error" });
