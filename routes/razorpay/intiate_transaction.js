@@ -11,7 +11,7 @@ async function initiateTransaction(req, res) {
         //     email: 'skbmasale941@gmail.com'
         // }
 
-        const subscription_type = req.query.subscription_type;
+        const subscription_type = req.body.subscription_type;
         const email = verifiedToken.email; // Get email from verifiedToken
 
         console.log("Initiate Transaction Request:");
