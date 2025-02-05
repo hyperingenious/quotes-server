@@ -57,8 +57,7 @@ async function create_payment_link({ email, subscription_type }) {
 
         const data = {
             // acccepts in paisa
-            amount: 100,
-            // amount: amount * 100,
+            amount,
             upi_link: "true",
             currency: "INR",
             accept_partial: false,

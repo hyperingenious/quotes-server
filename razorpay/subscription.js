@@ -1,12 +1,12 @@
 const READER_MONTHLY = {
     currency: 'INR',
-    amount: 100,
-    monthly_blog_limit: 200
+    amount: 200 * 100,
+    monthly_blog_limit: 300
 };
 
 const AVID_READER_MONTHLY = {
     currency: 'INR',
-    amount: 500,
+    amount: 499 * 100,
     monthly_blog_limit: 1000
 }
 
