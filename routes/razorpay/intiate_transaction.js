@@ -1,6 +1,7 @@
 const { get_all_user_subscription, get_all_user_initiated_transations } = require("../../appwrite/get/get_appwrite");
 const { create_payment_link } = require("../../razorpay/razorpay");
 const { add_initiate_transaction_entry, } = require("../../appwrite/add/add_appwrite");
+const { invalidateToken } = require("../../helpers/helper");
 
 async function initiateTransaction(req, res) {
     try {
@@ -41,7 +42,7 @@ async function initiateTransaction(req, res) {
             for (const doc of documents_2) { // Use for...of loop for better readability
                 const today = Math.floor(new Date().getTime() / 1000)
                 if (doc.expire_by > today) {
-                    return res.status(400).json({ error: "Bad request", message: "User already has an initiated transactions, please try again later" });
+                    return res.status(400).json({ error: "Bad request", message: "You already has an initiated transactions, please try again later" });
                 }
             }
         } else {
@@ -65,7 +66,6 @@ async function initiateTransaction(req, res) {
 
         console.log("Returning payment link details.");
         return res.status(200).json({ currency: payment_metadata.currency, payment_link: payment_metadata.short_url, amount: payment_metadata.amount, expire_by: payment_metadata.expire_by });
-
     } catch (error) {
         console.error("Error in /initiate_transaction:", error);
         res.status(500).json({ error: "Internal Server Error" });
