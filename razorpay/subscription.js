@@ -1,6 +1,6 @@
 const READER_MONTHLY = {
     currency: 'INR',
-    amount: 200 * 100,
+    amount: 199 * 100,
     monthly_blog_limit: 300
 };
 
