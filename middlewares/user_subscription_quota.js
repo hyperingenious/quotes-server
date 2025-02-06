@@ -10,11 +10,6 @@ async function userSubscriptionQuota(req, res, next) {
           */
         const verifiedToken = await invalidateToken({ req, res });
 
-        // const verifiedToken = {
-        //     sub: 'user_2oFLUNePrbPyBH1zJL4gV4mn7Kp',
-        //     email: 'skbmasale941@gmail.com'
-        // }
-
         const { documents } = await databases.listDocuments(DATABASE_ID, SUBSCRIPTIONS_COLLECTION_ID, [sdk.Query.equal('user_id', verifiedToken.sub)]);
 
         const currentDate = Math.floor(new Date().getTime() / 1000);
