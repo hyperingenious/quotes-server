@@ -26,7 +26,7 @@ async function clientAppwriteGET(req, res) {
             }
 
             case 'GET_FETCH_BLOGS': {
-                const offset = 0;
+                const offset = req.query.offset;
                 const NO_BLOGS_ID = '66dbf6d30kewiw04e3ii4';
                 const { documents } = await databases.listDocuments(DATABASE_ID, BLOGS_COLLECTION_ID, [
                     sdk.Query.limit(7),
