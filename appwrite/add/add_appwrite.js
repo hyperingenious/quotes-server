@@ -33,7 +33,7 @@ async function add_upload_book_entry(data_obj) {
             sdk.ID.unique(),
             data_obj
         );
-        console.log(`Book entry added successfully. Document ID: ${response.$id}`);
+        console.log(`Book entry added successfully. Document ID: ${document.$id}`);
         return document;
     } catch (error) {
         throw error;
