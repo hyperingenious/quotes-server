@@ -90,7 +90,6 @@ async function generateContent(genModel, query) {
     const result = await genModel.generateContent({
       contents: [{ role: "user", parts: [{ text: query }] }],
     });
-    console.log(result)
     return result.response.text();
   } catch (error) {
     console.error("Content generation error:", error);
