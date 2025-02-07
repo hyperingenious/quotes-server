@@ -23,7 +23,7 @@ const { userSubscriptionQuota } = require("./middlewares/user_subscription_quota
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const SELF_HOSTED_URL = "https://quotes-server-z2fk.onrender.com/";
+const SELF_HOSTED_URL = "https://warm-ridge-55610-174d7ff8b1c1.herokuapp.com/";
 
 // Ping the app every 10 minutes (10 * 60 * 1000 ms)
 setInterval(() => {
