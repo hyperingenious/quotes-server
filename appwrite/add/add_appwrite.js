@@ -18,7 +18,7 @@ async function add_deletion_entry({ file_id, chunk_id_array, blog_id_array }) {
                 file_id,
             }
         );
-        console.log("Deletion entry added successfully:", res);
+        console.log("Deletion entry added successfully", document.$id);
         return document;
     } catch (error) {
         throw error;
