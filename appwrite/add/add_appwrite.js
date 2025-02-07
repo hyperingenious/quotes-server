@@ -66,7 +66,6 @@ async function add_blogs(blogs_array, book_id, user_id) {
 
 async function add_blog({ blog, book_id, user_id, blog_image }) {
     console.log(`Adding blog for book ID: ${book_id}, user ID: ${user_id}`);
-    console.log("Blog data:", { blog, book_id, user_id, blog_image });
     try {
         const document = await databases.createDocument(
             DATABASE_ID,
