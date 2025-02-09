@@ -33,7 +33,6 @@ const {
   createFileFromRandomChunks,
 } = require("../parser/createFileFromRandomChunks");
 const { invalidateToken } = require("../helpers/helper");
-const { userSubscriptionQuota } = require("../middlewares/user_subscription_quota");
 
 /**
  * Multer storage engine configuration for storing uploaded files.
@@ -96,6 +95,7 @@ async function handleUpload(req, res) {
         return res.status(400).json({ error: "Bad Request", message: "File exceeded 10Mb try smaller" })
       }
     }
+
     if (subscription_type == 'avid_reader') {
       if (fileSize > 21000000) {
         await fs.unlink(filepath);
@@ -167,7 +167,7 @@ async function handleUpload(req, res) {
     /**
      * Sends the response immediately after uploading the PDF.
      */
-    res.status(200).send(`File uploaded successfully: ${req.file.filename}`);
+    res.status(200).json({message:`File uploaded successfully: ${req.file.filename}`});
 
   /**
    * Defer the remaining operations, allowing them to execute after response is sent
