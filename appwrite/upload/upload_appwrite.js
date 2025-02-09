@@ -9,7 +9,7 @@ async function upload_file_with_url(url) {
         const result = await storage.createFile(
             BUCKET_ID,
             sdk.ID.unique(),
-            InputFile.fromPath(url, `${crypto.randomUUID}.png`)
+            InputFile.fromPath(url, `${crypto.randomUUID()}.png`)
         );
         console.log(`File uploaded successfully. File ID: ${result.$id}`);
         const file_url = `https://cloud.appwrite.io/v1/storage/buckets/${result.bucketId}/files/${result.$id}/view?project=${APPWRITE_PROJECT_ID}&project=${APPWRITE_PROJECT_ID}&mode=admin`;
@@ -41,10 +41,9 @@ async function upload_pdf_chunk(chunk_data) {
 async function upload_pdf(pdf_path) {
     console.log(`Uploading PDF from path: ${pdf_path}`);
     try {
-        const result = await storage.createFile(
-            BUCKET_ID,
+        const result = await storage.createFile( BUCKET_ID,
             sdk.ID.unique(),
-            InputFile.fromPath(pdf_path, `${sdk.ID.unique}.pdf`)
+            InputFile.fromPath(pdf_path, `${sdk.ID.unique()}.pdf`)
         );
         console.log(`PDF uploaded successfully. File ID: ${result.$id}`);
         return result;
