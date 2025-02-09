@@ -33,6 +33,7 @@ const {
   createFileFromRandomChunks,
 } = require("../parser/createFileFromRandomChunks");
 const { invalidateToken } = require("../helpers/helper");
+const { userSubscriptionQuota } = require("../middlewares/user_subscription_quota");
 
 /**
  * Multer storage engine configuration for storing uploaded files.
@@ -59,16 +60,38 @@ const upload = multer({ storage: storage });
 async function handleUpload(req, res) {
   try {
     /**
-      * Verifies the token using the invalidateToken helper function.
-      */
-    const verifiedToken = await invalidateToken({ req, res })
-
-    /**
      * Checks if a file was uploaded.
      */
     if (!req.file) {
       return res.status(400).send("No file uploaded.");
     }
+
+    /**
+     * This section checks the file size against the user's subscription type.
+     * Different subscription types have different upload limits.
+     * 
+     * - `reader`: Files larger than 10MB (1050000 bytes) are rejected.  This limit is enforced to prevent users on the basic plan from uploading excessively large files, which could impact system resources or processing times.
+     * - `avid_reader`: Files larger than 20MB (21000000 bytes) are rejected. This higher limit caters to users with a more premium subscription, allowing them to upload larger files.
+     * 
+     * If the file size exceeds the limit for the user's subscription, a 400 Bad Request response is returned with an appropriate error message, instructing the user to try a smaller file.  The error message is designed to be user-friendly and informative.
+     */
+    const subscription_type = req.subscription_type;
+    const fileSize = req.file.size
+    if (subscription_type == 'reader') {
+      if (fileSize > 1050000) {
+        return res.status(400).json({ error: "Bad Request", message: "File exceeded 10Mb try smaller" })
+      }
+    }
+    if (subscription_type == 'avid_reader') {
+      if (fileSize > 21000000) {
+        return res.status(400).json({ error: "Bad Request", message: "File exceeded 20Mb try smaller" })
+      }
+    }
+
+    /**
+      * Verifies the token using the invalidateToken helper function.
+      */
+    const verifiedToken = await invalidateToken({ req, res })
 
     /**
      * Extracts book details from the request body.
