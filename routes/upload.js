@@ -53,6 +53,12 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 /**
+ * lifting variables to be set later such that files can be removed as any error occurs
+ */
+let lifted_filePath;
+let lifted_text_filePath;
+
+/**
  * Asynchronous function to handle file uploads, processing, and AI generation.
  * @param {object} req - The request object.
  * @param {object} res - The response object.
@@ -67,6 +73,13 @@ async function handleUpload(req, res) {
     }
 
     /**
+     * Resolves the file path.
+     */
+    const filepath = path.resolve(req.file.path);
+    lifted_filePath = filepath;
+
+
+    /**
      * This section checks the file size against the user's subscription type.
      * Different subscription types have different upload limits.
      * 
@@ -79,11 +92,13 @@ async function handleUpload(req, res) {
     const fileSize = req.file.size
     if (subscription_type == 'reader') {
       if (fileSize > 1050000) {
+        await fs.unlink(filepath);
         return res.status(400).json({ error: "Bad Request", message: "File exceeded 10Mb try smaller" })
       }
     }
     if (subscription_type == 'avid_reader') {
       if (fileSize > 21000000) {
+        await fs.unlink(filepath);
         return res.status(400).json({ error: "Bad Request", message: "File exceeded 20Mb try smaller" })
       }
     }
@@ -104,12 +119,8 @@ async function handleUpload(req, res) {
     const subscriptionQuota = req.subscriptionQuota
 
     /**
-     * Resolves the file path.
-     */
-    const filepath = path.resolve(req.file.path);
-    /**
-     * Synchronously reads the file to ensure it exists.
-     */
+      * Synchronously reads the file to ensure it exists.
+      */
     simpleFs.readFileSync(filepath);
 
     /**
@@ -158,65 +169,68 @@ async function handleUpload(req, res) {
      */
     res.status(200).send(`File uploaded successfully: ${req.file.filename}`);
 
-    /**
-     * Defer the remaining operations, allowing them to execute after response is sent
-     */
-    setImmediate(async () => {
-      try {
-        /**
-         * Adds a book entry to the database.
-         */
-        const { $id: bookEntryId } = await add_upload_book_entry(
-          book_entry_data
-        );
+  /**
+   * Defer the remaining operations, allowing them to execute after response is sent
+   */
+  setImmediate(async () => {
+    try {
+      /**
+       * Adds a book entry to the database.
+       */
+      const { $id: bookEntryId } = await add_upload_book_entry(
+        book_entry_data
+      );
 
-        /**
-         * Chunks the text into smaller pieces.
-         */
-        const chunked_text = chunk(text, 10000);
-        /**
-         * Creates a file from the chunked text.
-         */
-        const filePath = await createFileFromRandomChunks(chunked_text);
-        console.log("File written successfully");
+      /**
+       * Chunks the text into smaller pieces.
+       */
+      const chunked_text = chunk(text, 10000);
+      /**
+       * Creates a file from the chunked text.
+       */
+      const filePath = await createFileFromRandomChunks(chunked_text);
+      lifted_text_filePath = filePath
+      console.log("File written successfully");
 
-        /**
-         * Generates AI content using the chunked text.
-         */
-        const random_cache_model_name = `${crypto.randomUUID()}`;
-        await ai_blog_generator({
-          subscriptionQuota,
-          filePath,
-          displayName: random_cache_model_name,
-          bookEntryId,
-          user_id: verifiedToken.sub, // Use verified user ID
-        });
+      /**
+       * Generates AI content using the chunked text.
+       */
+      const random_cache_model_name = `${crypto.randomUUID()}`;
+      await ai_blog_generator({
+        subscriptionQuota,
+        filePath,
+        displayName: random_cache_model_name,
+        bookEntryId,
+        user_id: verifiedToken.sub, // Use verified user ID
+      });
 
-        /**
-         * Deletes the temporary file.
-         */
-        await fs.unlink(filepath);
-        console.log(`Successfully deleted the file: ${filepath}`);
+      /**
+       * Deletes the temporary file.
+       */
+      await fs.unlink(filepath);
+      console.log(`Successfully deleted the file: ${filepath}`);
 
-        /**
-         * Uploads the chunked text to Appwrite.
-         */
-        for (const chunk of chunked_text) {
-          const chunk_data = {
-            chunk_text: chunk,
-            books: bookEntryId,
-          };
-          await upload_pdf_chunk(chunk_data);
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-        }
-        console.log("All the chunks successfully has been uploaded");
-      } catch (error) {
-        console.error("Error in deferred execution:", error);
+      /**
+       * Uploads the chunked text to Appwrite.
+       */
+      for (const chunk of chunked_text) {
+        const chunk_data = {
+          chunk_text: chunk,
+          books: bookEntryId,
+        };
+        await upload_pdf_chunk(chunk_data);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
-    });
-  } catch (err) {
-    return res.status(404).json({ error: err.message });
-  }
+      console.log("All the chunks successfully has been uploaded");
+    } catch (error) {
+      console.error("Error in deferred execution:", error);
+    }
+  });
+} catch (err) {
+  await fs.unlink(lifted_text_filePath)
+  await fs.unlink(lifted_filePath)
+  return res.status(404).json({ error: err.message });
+}
 }
 
 /**
