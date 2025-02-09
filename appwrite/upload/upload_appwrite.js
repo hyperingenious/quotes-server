@@ -21,7 +21,7 @@ async function upload_file_with_url(url) {
 }
 
 async function upload_pdf_chunk(chunk_data) {
-    console.log("Uploading PDF chunk:", chunk_data);
+    console.log("Uploading PDF chunk of BOOKID:", chunk_data.books);
     try {
         const response = await databases.createDocument(
             DATABASE_ID,
