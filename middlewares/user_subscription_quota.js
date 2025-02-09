@@ -15,9 +15,12 @@ async function userSubscriptionQuota(req, res, next) {
         const currentDate = Math.floor(new Date().getTime() / 1000);
 
         /**
-         * Checking if the subscription's ending date is not passed
+         * Checking if the subscription's ending date is not ended 
          */
         for (let i = 0; i < documents.length; ++i) {
+            /**
+             * if ending date is not ended 
+             */
             if (documents[i].end_date > currentDate) {
                 try {
                     /**
@@ -29,7 +32,19 @@ async function userSubscriptionQuota(req, res, next) {
                      * If generated blogs doesn't exceeds allocated quota, executes further
                      */
                     if (subscriptionQuota.allocated_blog_quota > subscriptionQuota.blogs_generated) {
-                        req.subscriptionQuota = subscriptionQuota
+                        req.subscriptionQuota = subscriptionQuota;
+                        const subscription_type = documents[i].subscription_type;
+                        const fileSize = req.file.size;
+                        if (subscription_type == 'reader') {
+                            if (fileSize > 1050000) {
+                                return res.status(400).json({ error: "Bad Request", message: "File exceeded 10Mb try smaller" })
+                            }
+                        }
+                        if (subscription_type == 'avid_reader') {
+                            if (fileSize > 21000000) {
+                                return res.status(400).json({ error: "Bad Request", message: "File exceeded 20Mb try smaller" })
+                            }
+                        }
                         next()
                         return;
                     }
