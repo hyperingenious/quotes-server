@@ -41,7 +41,7 @@ async function upload_pdf_chunk(chunk_data) {
 async function upload_pdf(pdf_path) {
     console.log(`Uploading PDF from path: ${pdf_path}`);
     try {
-        const result = await storage.createFile( BUCKET_ID,
+        const result = await storage.createFile(BUCKET_ID,
             sdk.ID.unique(),
             InputFile.fromPath(pdf_path, `${sdk.ID.unique()}.pdf`)
         );

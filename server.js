@@ -20,6 +20,7 @@ const { razorpayWebhookEndpoint } = require("./routes/razorpay/webhook-endpoint"
 
 const { getSubscription } = require("./routes/get_subscription");
 const { userSubscriptionQuota } = require("./middlewares/user_subscription_quota");
+const feedback = require("./routes/feedback");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -69,6 +70,7 @@ cronjob("*/10 0-5 * * *")
 app.post("/upload", userSubscriptionQuota, upload_pdf_route);
 app.post("/generate-content", userSubscriptionQuota, generateContent);
 app.post("/delete-content", deleteContent);
+app.post("/feedback", feedback);
 
 // CLI
 app.post("/cli/verify-token", verifyToken);
