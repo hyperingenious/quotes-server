@@ -43,7 +43,7 @@ async function generateImage({ prompt }) {
       reject(error);
     });
 
-    req.write(JSON.stringify({ prompt, width: 512, height: 512 }));
+    req.write(JSON.stringify({ prompt, width: 600, height: 600 }));
     req.end();
   });
 }
