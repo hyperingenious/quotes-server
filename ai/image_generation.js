@@ -44,27 +44,21 @@ async function generateImage({ prompt }) {
       reject(error);
     });
 
-    req.write(JSON.stringify({ prompt }));
+    req.write(JSON.stringify({ prompt, width: 512, height: 512 }));
     req.end();
   });
 }
 
 async function getPromptGeneratedImageUrl({ prompt }) {
   try {
-    const image_path = await generateImage({ prompt });
+    await generateImage({ prompt });
+    const image_path = __dirname + '/output.png'
     console.log("Image generated successfully:", image_path);
 
-    await compress_image();
-    console.log("Image compression finished");
-    const default_img_url = `${__dirname.replace(
-      "ai",
-      ""
-    )}parser/parseroutput.png`;
-
-    const hosted_url = await upload_file_with_url(default_img_url);
+    const hosted_url = await upload_file_with_url(image_path);
     console.log("Image uploaded(appwrite):", hosted_url);
 
-    fs.unlinkSync(default_img_url);
+    fs.unlinkSync(image_path);
     console.log("File deleted successfully");
 
     return hosted_url;
