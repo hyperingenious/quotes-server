@@ -1,4 +1,5 @@
 const fs = require("fs");
+const mammoth = require("mammoth");
 const pdf = require("pdf-parse");
 const { parseEpub } = require('@gxl/epub-parser');
 const htmlToText = require("html-to-text");
@@ -27,8 +28,14 @@ const parsePDF = async (filepath) => {
   }
 };
 
+async function parseDOC(filepath) {
+  const buffer = fs.readFileSync(filepath);
+  const { value: text } = await mammoth.extractRawText({ buffer });
+  return text;
+};
 
 module.exports = {
   parsePDF,
+  parseDOC,
   parseEPUB
 };

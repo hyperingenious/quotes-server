@@ -1,4 +1,4 @@
-const { parseEPUB, parsePDF } = require("../../parser/pdf_to_text");
+const { parseEPUB, parsePDF, parseDOC } = require("../../parser/pdf_to_text");
 
 async function parse({ filepath, mimetype }) {
     let text;
