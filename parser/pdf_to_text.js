@@ -34,8 +34,15 @@ async function parseDOC(filepath) {
   return text;
 };
 
+async function parseTXT(filepath) {
+  const text = fs.readFileSync(filepath, "utf8");
+  console.log(text)
+  return text
+}
+
 module.exports = {
   parsePDF,
   parseDOC,
-  parseEPUB
+  parseEPUB,
+  parseTXT
 };
