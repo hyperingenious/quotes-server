@@ -30,19 +30,18 @@ async function createFileFromRandomChunksGenerateContent(chunkIds) {
 async function createFileFromRandomChunks(chunked_text) {
   const random_chunks = random_chunk(chunked_text);
   let random_text = ``;
+  const divider = "========================================================";
 
-  for (let i = 0; i < random_chunks.length; i++) {
-    const divider = "========================================================";
-    random_text += `${divider} ${random_chunks[i]}`;
+  for (const chunk of random_chunks) {
+    random_text += `${divider}\n${chunk}\n`;
   }
 
   const fileName = `${crypto.randomUUID()}.txt`;
   const filePath = path.resolve(fileName);
-  await fs.writeFile(fileName, random_text);
+  await fs.writeFile(filePath, random_text, 'utf-8');
 
   return filePath;
 }
-
 module.exports = {
   createFileFromRandomChunksGenerateContent,
   createFileFromRandomChunks,
