@@ -1,7 +1,6 @@
 require("dotenv").config();
 const fs = require("fs");
 const https = require("https");
-const { compress_image } = require("../parser/compress_image");
 const { upload_file_with_url } = require("../appwrite/upload/upload_appwrite");
 
 async function generateImage({ prompt }) {
