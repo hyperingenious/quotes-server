@@ -1,13 +1,9 @@
-/**
- * Imports necessary modules for file upload, processing, and AI generation.
- */
 const crypto = require("crypto");
 const multer = require("multer");
 const fs = require("fs").promises;
 const simpleFs = require("fs");
 const path = require("path");
 const chunk = require("chunk-text");
-const { parsePDF } = require("../parser/pdf_to_text");
 const { ai_blog_generator } = require("../ai/ai_blog_generator");
 
 /**
@@ -33,6 +29,7 @@ const {
   createFileFromRandomChunks,
 } = require("../parser/createFileFromRandomChunks");
 const { invalidateToken } = require("../helpers/helper");
+const parse = require("./upload/parse");
 
 /**
  * Multer storage engine configuration for storing uploaded files.
@@ -52,185 +49,86 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 /**
- * lifting variables to be set later such that files can be removed as any error occurs
- */
-let lifted_filePath;
-let lifted_text_filePath;
-
-/**
  * Asynchronous function to handle file uploads, processing, and AI generation.
  * @param {object} req - The request object.
  * @param {object} res - The response object.
  */
 async function handleUpload(req, res) {
   try {
-    /**
-     * Checks if a file was uploaded.
-     */
+    // Check if a file was uploaded
     if (!req.file) {
       return res.status(400).send("No file uploaded.");
     }
 
-    /**
-     * Resolves the file path.
-     */
     const filepath = path.resolve(req.file.path);
-    lifted_filePath = filepath;
+    const fileSize = req.file.size;
+    const mimetype = req.body.mimetype;
+    const subscriptionType = req.subscription_type;
 
-
-    /**
-     * This section checks the file size against the user's subscription type.
-     * Different subscription types have different upload limits.
-     * 
-     * - `reader`: Files larger than 10MB (1050000 bytes) are rejected.  This limit is enforced to prevent users on the basic plan from uploading excessively large files, which could impact system resources or processing times.
-     * - `avid_reader`: Files larger than 20MB (21000000 bytes) are rejected. This higher limit caters to users with a more premium subscription, allowing them to upload larger files.
-     * 
-     * If the file size exceeds the limit for the user's subscription, a 400 Bad Request response is returned with an appropriate error message, instructing the user to try a smaller file.  The error message is designed to be user-friendly and informative.
-     */
-    const subscription_type = req.subscription_type;
-    const fileSize = req.file.size
-    if (subscription_type == 'reader') {
-      if (fileSize > 1050000) {
-        await fs.unlink(filepath);
-        return res.status(400).json({ error: "Bad Request", message: "File exceeded 10Mb try smaller" })
-      }
+    //Check file size based on subscription
+    const maxSize = subscriptionType === 'reader' ? 1050000 : (subscriptionType === 'avid_reader' ? 21000000 : 0); //Default to 0 for unsupported plans.
+    if (maxSize > 0 && fileSize > maxSize) {
+      await fs.unlink(filepath);
+      return res.status(400).json({ error: "Bad Request", message: `File exceeded ${maxSize/1000000}Mb try smaller` });
     }
 
-    if (subscription_type == 'avid_reader') {
-      if (fileSize > 21000000) {
-        await fs.unlink(filepath);
-        return res.status(400).json({ error: "Bad Request", message: "File exceeded 20Mb try smaller" })
-      }
+    //Check mimetype
+    const allowedMimetypes = [
+      'application/pdf', 
+      'text/plain', 
+      'application/epub+zip', 'application/x-epub', 
+      'application/msword', 'application/doc', 'application/x-msword', 'application/vnd.ms-word', 
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/x-docx' 
+    ];
+
+    if (!allowedMimetypes.includes(mimetype)) {
+      await fs.unlink(filepath);
+      return res.status(403).json({ error: "Forbidden", message: "File type is not accepted" });
     }
 
-    /**
-      * Verifies the token using the invalidateToken helper function.
-      */
-    const verifiedToken = await invalidateToken({ req, res })
+    //Check plan for allowed mimetypes
+    if (mimetype !== 'application/pdf' && !['reader', 'avid_reader'].includes(subscriptionType)) {
+      await fs.unlink(filepath);
+      return res.status(403).json({ error: 'Forbidden', message: "File type not allowed in your plan" });
+    }
 
-    /**
-     * Extracts book details from the request body.
-     */
-    const {
-      authorName: author,
-      bookTitle: book_name,
-      imageUrl: book_image,
-    } = req.body; // Extract additional fields
-    const subscriptionQuota = req.subscriptionQuota
+    const verifiedToken = await invalidateToken({ req, res });
+    const { authorName: author, bookTitle: book_name, imageUrl: book_image } = req.body;
 
-    /**
-      * Synchronously reads the file to ensure it exists.
-      */
-    simpleFs.readFileSync(filepath);
-
-    /**
-     * Parses the PDF file to extract text content.
-     */
-    const text = await parsePDF(filepath);
-    /**
-     * Gets the token count of the extracted text.
-     */
+    const text = await parse({ mimetype, filepath });
     const tokenCount = await getTokenCount(text);
 
-    /**
-     * Logs the token count to the console.
-     */
-    console.log(tokenCount);
-
-    /**
-     * Checks if the token count is sufficient.
-     */
-    if (tokenCount < 50_000) {
-      /**
-       * Deletes the file if the token count is insufficient.
-       */
+    if (tokenCount < 50000) {
       await fs.unlink(filepath);
       return res.status(400).send("Your Book is too small, try a bigger one");
     }
 
-    /**
-     * Uploads the PDF file to Appwrite and gets the file ID.
-     */
     const { $id: bookPDFId } = await upload_pdf(filepath);
-    /**
-     * Constructs the PDF link using the file ID.
-     */
     const pdf_link = `https://cloud.appwrite.io/v1/storage/buckets/${process.env.BUCKET_ID}/files/${bookPDFId}/view?project=${process.env.APPWRITE_PROJECT_ID}&mode=admin`;
+    const bookEntryData = { user_id: verifiedToken.sub, author, book_image, book_name, pdf_link };
 
-    /**
-     * Prepares the data for adding a book entry to the database.
-     */
-    const book_entry_data = {
-      user_id: verifiedToken.sub, author, book_image, book_name, pdf_link,
-    };
+    const { $id: bookEntryId } = await add_upload_book_entry(bookEntryData);
+    res.status(200).json({ message: `File uploaded successfully: ${req.file.filename}` });
 
-    /**
-     * Sends the response immediately after uploading the PDF.
-     */
-    res.status(200).json({message:`File uploaded successfully: ${req.file.filename}`});
+    const chunkedText = chunk(text, 10000);
+    const filePath = await createFileFromRandomChunks(chunkedText);
 
-  /**
-   * Defer the remaining operations, allowing them to execute after response is sent
-   */
-  setImmediate(async () => {
-    try {
-      /**
-       * Adds a book entry to the database.
-       */
-      const { $id: bookEntryId } = await add_upload_book_entry(
-        book_entry_data
-      );
+    const randomCacheModelName = `${crypto.randomUUID()}`;
+    await ai_blog_generator({ subscriptionQuota: req.subscriptionQuota, filePath, displayName: randomCacheModelName, bookEntryId, user_id: verifiedToken.sub });
 
-      /**
-       * Chunks the text into smaller pieces.
-       */
-      const chunked_text = chunk(text, 10000);
-      /**
-       * Creates a file from the chunked text.
-       */
-      const filePath = await createFileFromRandomChunks(chunked_text);
-      lifted_text_filePath = filePath
-      console.log("File written successfully");
+    await fs.unlink(filepath); //Remove original file.
+    await fs.unlink(filePath); //Remove temporary file.
 
-      /**
-       * Generates AI content using the chunked text.
-       */
-      const random_cache_model_name = `${crypto.randomUUID()}`;
-      await ai_blog_generator({
-        subscriptionQuota,
-        filePath,
-        displayName: random_cache_model_name,
-        bookEntryId,
-        user_id: verifiedToken.sub, // Use verified user ID
-      });
-
-      /**
-       * Deletes the temporary file.
-       */
-      await fs.unlink(filepath);
-      console.log(`Successfully deleted the file: ${filepath}`);
-
-      /**
-       * Uploads the chunked text to Appwrite.
-       */
-      for (const chunk of chunked_text) {
-        const chunk_data = {
-          chunk_text: chunk,
-          books: bookEntryId,
-        };
-        await upload_pdf_chunk(chunk_data);
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-      }
-      console.log("All the chunks successfully has been uploaded");
-    } catch (error) {
-      console.error("Error in deferred execution:", error);
+    for (const chunk of chunkedText) {
+      const chunkData = { chunk_text: chunk, books: bookEntryId };
+      await upload_pdf_chunk(chunkData);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     }
-  });
-} catch (err) {
-  await fs.unlink(lifted_text_filePath)
-  await fs.unlink(lifted_filePath)
-  return res.status(404).json({ error: err.message });
-}
+    console.log("All the chunks successfully has been uploaded");
+  } catch (error) {
+    console.error("Error in handleUpload:", error); //Added more robust error handling.
+    return res.status(500).json({ error: error.message });
+  }
 }
 
 /**
