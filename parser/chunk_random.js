@@ -11,6 +11,7 @@ function getRandomChunks(chunkArray, count) {
 }
 
 function random_chunk(chunk_array) {
+  // 32% of the chunk array
   const count = 32;
   return getRandomChunks(chunk_array, count);
 }
