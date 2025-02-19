@@ -1,16 +1,10 @@
 require("dotenv").config();
-const { invalidateToken } = require("../helpers/helper");
 const { databases, DATABASE_ID, SUBSCRIPTIONS_COLLECTION_ID, SUBSCRIPTION_QUOTA_COLLECTION_ID } = require('../appwrite/appwrite');
 const sdk = require("node-appwrite");
 
 async function userSubscriptionQuota(req, res, next) {
     try {
-        /**
-          * Verifies the user's token using the invalidateToken helper function.
-          */
-        const verifiedToken = await invalidateToken({ req, res });
-
-        const { documents } = await databases.listDocuments(DATABASE_ID, SUBSCRIPTIONS_COLLECTION_ID, [sdk.Query.equal('user_id', verifiedToken.sub)]);
+        const { documents } = await databases.listDocuments(DATABASE_ID, SUBSCRIPTIONS_COLLECTION_ID, [sdk.Query.equal('user_id', req.verifiedToken.sub)]);
 
         const currentDate = Math.floor(new Date().getTime() / 1000);
 
@@ -32,6 +26,7 @@ async function userSubscriptionQuota(req, res, next) {
                      * If generated blogs doesn't exceeds allocated quota, executes further
                      */
                     if (subscriptionQuota.allocated_blog_quota > subscriptionQuota.blogs_generated) {
+                        req.remainingQuota = subscriptionQuota.allocated_blog_quota - subscriptionQuota.blogs_generated
                         req.subscriptionQuota = subscriptionQuota;
                         req.subscription_type = documents[i].subscription_type
                         next()
