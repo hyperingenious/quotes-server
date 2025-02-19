@@ -43,7 +43,7 @@ async function generateImage({ prompt }) {
       reject(error);
     });
 
-    req.write(JSON.stringify({ prompt, width: 600, height: 600 }));
+    req.write(JSON.stringify({ prompt,  }));
     req.end();
   });
 }
@@ -66,4 +66,5 @@ async function getPromptGeneratedImageUrl({ prompt }) {
     throw error;
   }
 }
+
 module.exports = { generateImage, getPromptGeneratedImageUrl };
