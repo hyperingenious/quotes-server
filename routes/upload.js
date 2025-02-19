@@ -1,7 +1,6 @@
 const crypto = require("crypto");
 const multer = require("multer");
 const fs = require("fs").promises;
-const simpleFs = require("fs");
 const path = require("path");
 const chunk = require("chunk-text");
 const { ai_blog_generator } = require("../ai/ai_blog_generator");
@@ -69,21 +68,7 @@ async function handleUpload(req, res) {
     const maxSize = subscriptionType === 'reader' ? 1050000 : (subscriptionType === 'avid_reader' ? 21000000 : 0); //Default to 0 for unsupported plans.
     if (maxSize > 0 && fileSize > maxSize) {
       await fs.unlink(filepath);
-      return res.status(400).json({ error: "Bad Request", message: `File exceeded ${maxSize/1000000}Mb try smaller` });
-    }
-
-    //Check mimetype
-    const allowedMimetypes = [
-      'application/pdf', 
-      'text/plain', 
-      'application/epub+zip', 'application/x-epub', 
-      'application/msword', 'application/doc', 'application/x-msword', 'application/vnd.ms-word', 
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/x-docx' 
-    ];
-
-    if (!allowedMimetypes.includes(mimetype)) {
-      await fs.unlink(filepath);
-      return res.status(403).json({ error: "Forbidden", message: "File type is not accepted" });
+      return res.status(400).json({ error: "Bad Request", message: `File exceeded ${maxSize / 1000000}Mb try smaller` });
     }
 
     //Check plan for allowed mimetypes
@@ -97,6 +82,7 @@ async function handleUpload(req, res) {
 
     const text = await parse({ mimetype, filepath });
     const tokenCount = await getTokenCount(text);
+
 
     if (tokenCount < 50000) {
       await fs.unlink(filepath);
