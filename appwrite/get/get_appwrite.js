@@ -1,6 +1,19 @@
-const { DATABASE_ID, CHUNKS_COLLECTION_ID, databases, CONTENT_DELETION_COLLECTION_ID, BOOKS_COLLECTION_ID, BLOGS_COLLECTION_ID, SUBSCRIPTIONS_COLLECTION_ID, INITIATED_TRANSACTIONS_COLLECTION_ID } = require("../appwrite");
+const { DATABASE_ID, CHUNKS_COLLECTION_ID, databases, CONTENT_DELETION_COLLECTION_ID, BOOKS_COLLECTION_ID, BLOGS_COLLECTION_ID, SUBSCRIPTIONS_COLLECTION_ID, INITIATED_TRANSACTIONS_COLLECTION_ID, FREE_CONTENT_GENERATION_ENTRIES } = require("../appwrite");
 const sdk = require("node-appwrite");
 const { verify_token } = require("../verify/verify_appwrite");
+
+async function get_free_content_count({ type, user_id }) {
+    try {
+        const { total } = await databases.listDocuments(
+            DATABASE_ID,
+            FREE_CONTENT_GENERATION_ENTRIES,
+            [sdk.Query.select(['$id']), sdk.Query.equal('user_id', user_id), sdk.Query.equal('type', type), sdk.Query.limit(298938)]
+        );
+        return total;
+    } catch (error) {
+        throw error;
+    }
+}
 
 async function get_chunk_by_id(chunk_id) {
     console.log(`Getting chunk by ID: ${chunk_id}`);
@@ -159,5 +172,6 @@ module.exports = {
     get_all_books,
     get_all_user_subscription,
     get_initiated_transaction_by_plink_id,
-    get_all_user_initiated_transations
+    get_all_user_initiated_transations,
+get_free_content_count
 }
