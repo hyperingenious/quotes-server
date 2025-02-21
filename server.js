@@ -90,7 +90,7 @@ app.post('/initiate-transaction', initiateTransaction);
 app.post('/razorpay-webhook-endpoint', razorpayWebhookEndpoint);
 
 app.get('/get-subscription', getSubscription);
-app.get('/get-token-plan', invalidateJwt, tokenPlan)
+app.post('/get-token-plan', invalidateJwt, tokenPlan)
 
 // Basic route
 app.get("/", (_, res) => {

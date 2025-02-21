@@ -39,6 +39,14 @@ async function getTokenPlan(req, res) {
     })
 }
 
-const tokenPlan = [upload, getTokenPlan]
+const tokenPlan = [upload.single('pdf'), getTokenPlan]
 
 module.exports = tokenPlan
+
+/*
+curl -X POST http://localhost:3000/get-token-plan \
+  -H "Content-Type: multipart/form-data" \
+  -F "pdf=@/home/hyper/Downloads/_OceanofPDF.com_Superagency_Our_AI_Future_-_Reid_Hoffman.pdf" \
+  -F "mimetype=application/pdf"
+
+*/

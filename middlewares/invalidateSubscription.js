@@ -1,4 +1,7 @@
-async function invalidateSubscription(req, res) {
+const { databases, DATABASE_ID, SUBSCRIPTION_QUOTA_COLLECTION_ID, SUBSCRIPTIONS_COLLECTION_ID } = require("../appwrite/appwrite");
+const sdk = require('node-appwrite')
+
+async function invalidateSubscription(req, res,next) {
     try {
         const { documents } = await databases.listDocuments(DATABASE_ID, SUBSCRIPTIONS_COLLECTION_ID, [sdk.Query.equal('user_id', req.verifiedToken.sub)]);
 
@@ -45,7 +48,7 @@ async function invalidateSubscription(req, res) {
             }
         }
         req.subscription = 'unpaid'
-        next(); return;
+        next()
     } catch (error) {
         console.error(error)
         return res.status(500).json({ error: "Internal Server Error" });

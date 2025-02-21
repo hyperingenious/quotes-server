@@ -2,6 +2,7 @@ const { parseEPUB, parsePDF, parseDOC, parseTXT } = require("../../parser/pdf_to
 
 async function parse({ filepath, mimetype }) {
     let text;
+    console.log(mimetype)
     if (mimetype === 'application/pdf')
         text = await parsePDF(filepath);
 
