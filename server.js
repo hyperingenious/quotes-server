@@ -68,7 +68,9 @@ cronjob("*/10 0-5 * * *")
 
 // Route definitions
 app.post("/upload", invalidateToken, userSubscriptionQuota, upload_pdf_route);
-app.post('/new-upload', invalidateJwt, invalidateSubscription, checkBlogCount, checkFileSize, saveFiles, checkFileMimetype, uploadPDFRouteNew)
+
+
+app.post('/new-upload', invalidateJwt, invalidateSubscription, checkBlogCount, saveFiles, checkFileSize, checkFileMimetype, uploadPDFRouteNew)
 app.post("/generate-content", userSubscriptionQuota, generateContent);
 app.post("/delete-content", deleteContent);
 app.post("/feedback", feedback);
