@@ -7,15 +7,18 @@ const { ai_blog_generator } = require("../ai/ai_blog_generator");
 const { upload_pdf } = require("../appwrite/upload/upload_appwrite");
 const parse = require("./upload/parse");
 const { add_upload_book_entry } = require("../appwrite/add/add_appwrite");
+const { databases, DATABASE_ID, FREE_CONTENT_GENERATION_ENTRIES } = require("../appwrite/appwrite");
+const { default: subscriptions } = require("razorpay/dist/types/subscriptions");
 
 async function uploadPDFRouteNew(req, res) {
     try {
-        const { blogCount, mimetype, authorName: author, bookTitle: book_name, imageUrl: book_image } = req.body;
+        const { subscription, blogCount, mimetype, authorName: author, bookTitle: book_name, imageUrl: book_image } = req.body;
+        const { verifiedToken } = req
         const filepath = path.resolve(req.file.path)
         const text = await parse({ mimetype, filepath })
 
         const perContextPortion = 100 / (blogCount / 6);
-        const times = blogCount / 6
+        const times = blogCount / 6;
         const chunks = chunk(text, 10000);
         const texts = [];
         const cacheInterval = chunks.length * perContextPortion / 100;
@@ -31,8 +34,8 @@ async function uploadPDFRouteNew(req, res) {
         for (let i = 0; i < times; ++i) {
             const startingIndex = i * cacheInterval;
             const chunksSlice = chunks.slice(startingIndex, startingIndex + cacheInterval);
-            const tempChunkStore = []
-            chunksSlice.forEach(chunk => tempChunkStore.push(chunk))
+            const tempChunkStore = [];
+            chunksSlice.forEach(chunk => tempChunkStore.push(chunk));
             texts.push(tempChunkStore);
         }
 
@@ -50,8 +53,26 @@ async function uploadPDFRouteNew(req, res) {
         for (let kkr = 0; kkr < textFilePaths.length; ++kkr) {
             await fs.unlink(textFilePaths[kkr]);
         }
+        console.log("Content generated successfully!");
 
-        console.log("Content generated successfully!")
+
+        if (subscriptions === 'unpaid') {
+            for (let whatever = 0; whatever < blogCount; ++whatever) {
+                await databases.createDocument(
+                    DATABASE_ID, FREE_CONTENT_GENERATION_ENTRIES, {
+                    type: 'blog',
+                    user_id: verifiedToken.sub
+                }
+                )
+            }
+
+            await databases.createDocument(
+                Dataid, FREE_CONTENT_GENERATION_ENTRIES, {
+                type: 'book',
+                user_id: verifiedToken.sub
+            })
+        }
+
     } catch (error) {
         console.error(error)
         throw error;
