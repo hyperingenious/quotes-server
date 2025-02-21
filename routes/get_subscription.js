@@ -1,10 +1,9 @@
 require("dotenv").config();
-const { databases, DATABASE_ID, SUBSCRIPTIONS_COLLECTION_ID, SUBSCRIPTION_QUOTA_COLLECTION_ID } = require('../appwrite/appwrite');
+const { databases, DATABASE_ID, SUBSCRIPTIONS_COLLECTION_ID, SUBSCRIPTION_QUOTA_COLLECTION_ID, FREE_CONTENT_GENERATION_ENTRIES } = require('../appwrite/appwrite');
 const sdk = require("node-appwrite");
 const { invalidateToken } = require("../helpers/helper");
 
 async function getSubscription(req, res) {
-    
     try {
         const verifiedToken = await invalidateToken({ res, req });
 
@@ -25,6 +24,13 @@ async function getSubscription(req, res) {
                 break; // Exit loop after finding an active subscription
             }
         }
+
+        const { total: freeBlogCount } = await databases.listDocuments(DATABASE_ID, FREE_CONTENT_GENERATION_ENTRIES, [sdk.Query.equal('user_id', verifiedToken.sub), sdk.Query.equal('type', 'blog'), sdk.Query.select(['$id'])]);
+        const { total: freeBookCount } = await databases.listDocuments(DATABASE_ID, FREE_CONTENT_GENERATION_ENTRIES, [sdk.Query.equal('user_id', verifiedToken.sub), sdk.Query.equal('type', 'book'), sdk.Query.select(['$id'])]);
+
+        subscription.freeBlogCount = freeBlogCount;
+        subscription.freeBookCount = freeBookCount;
+
 
         return res.status(200).json(subscription);
     } catch (error) {
