@@ -8,7 +8,6 @@ const { upload_pdf } = require("../appwrite/upload/upload_appwrite");
 const parse = require("./upload/parse");
 const { add_upload_book_entry } = require("../appwrite/add/add_appwrite");
 const { databases, DATABASE_ID, FREE_CONTENT_GENERATION_ENTRIES } = require("../appwrite/appwrite");
-const { default: subscriptions } = require("razorpay/dist/types/subscriptions");
 
 async function uploadPDFRouteNew(req, res) {
     try {
@@ -56,7 +55,7 @@ async function uploadPDFRouteNew(req, res) {
         console.log("Content generated successfully!");
 
 
-        if (subscriptions === 'unpaid') {
+        if (subscription === 'unpaid') {
             for (let whatever = 0; whatever < blogCount; ++whatever) {
                 await databases.createDocument(
                     DATABASE_ID, FREE_CONTENT_GENERATION_ENTRIES, {
