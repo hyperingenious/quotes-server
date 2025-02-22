@@ -1,6 +1,7 @@
 const multer = require("multer");
 const parse = require("./upload/parse");
 const path = require("path");
+const fs = require('fs');
 const { getTokenCount } = require("../parser/text_to_token_len");
 
 /**
