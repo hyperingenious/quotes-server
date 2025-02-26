@@ -11,8 +11,8 @@ const { databases, DATABASE_ID, FREE_CONTENT_GENERATION_ENTRIES } = require("../
 
 async function uploadPDFRouteNew(req, res) {
     try {
-        const { subscription, blogCount, mimetype, authorName: author, bookTitle: book_name, imageUrl: book_image } = req.body;
-        const { verifiedToken } = req
+        const { blogCount, mimetype, authorName: author, bookTitle: book_name, imageUrl: book_image } = req.body;
+        const { verifiedToken, subscription } = req
         const filepath = path.resolve(req.file.path)
         const text = await parse({ mimetype, filepath })
 
@@ -21,7 +21,6 @@ async function uploadPDFRouteNew(req, res) {
         const chunks = chunk(text, 10000);
         const texts = [];
         const cacheInterval = chunks.length * perContextPortion / 100;
-
 
         const { $id: bookPDFId } = await upload_pdf(filepath);
         const pdf_link = `https://cloud.appwrite.io/v1/storage/buckets/${process.env.BUCKET_ID}/files/${bookPDFId}/view?project=${process.env.APPWRITE_PROJECT_ID}&mode=admin`;
