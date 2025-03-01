@@ -1,3 +1,4 @@
+const fs = require('fs')
 async function checkFileSize(req, res, next) {
     try {
         const { subscription } = req;
