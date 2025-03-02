@@ -6,10 +6,12 @@ async function checkFileSize(req, res, next) {
         const filepath = req.file.path;
 
         //Check file size based on subscription
-        const maxSize = subscription === 'unpaid' ? 1050000 : (subscription === 'reader' ? 21000000 : 0); //Default to 0 for unsupported plans.
+        const maxSize = subscription === 'unpaid' ? 10500000 : (subscription === 'reader' ? 21000000 : 0); //Default to 0 for unsupported plans.
+
+        console.log(fileSize)
 
         if (maxSize > 0 && fileSize > maxSize) {
-            await fs.unlink(filepath);
+            fs.unlink(filepath);
             return res.status(400).json({ error: "Bad Request", message: `File exceeded ${maxSize / 1000000}Mb try smaller` });
         }
         next();
