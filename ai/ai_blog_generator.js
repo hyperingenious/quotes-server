@@ -84,7 +84,6 @@ async function createCache(fileResult, displayName) {
   }
 }
 
-// Generate content based on a query
 async function generateContent(genModel, query) {
   try {
     const result = await genModel.generateContent({
@@ -92,59 +91,81 @@ async function generateContent(genModel, query) {
     });
     return result.response.text();
   } catch (error) {
-    console.error("Content generation error:", error);
-    throw error;
+    console.error("Content generation error:", error.message || error);
+    if (error.status === 503) {
+      // Graceful fallback for Gemini overload
+      return "[Blog generation temporarily unavailable - AI service overloaded]";
+    }
+    throw error; // For other unexpected errors, still throw (optional)
   }
 }
 
-// Fetch multiple blog posts
-async function fetchBlogs({ subscriptionQuota, genBlog, bookEntryId, user_id, count = 6 }) {
-  for (let i = 0; i < count; i++) {
-    await new Promise((resolve) => setTimeout(resolve, BLOG_GENERATION_TIMER));
-    const blog = await genBlog();
-    const blog_prompt = await blogToPromptGeneration({ blog_content: blog });
-    const blogImageUrl = await getPromptGeneratedImageUrl({
-      prompt: blog_prompt,
-    });
-    console.log(blogImageUrl);
-    await add_blog({
-      blog, book_id: bookEntryId, user_id,
-      blog_image: blogImageUrl,
-    });
 
-    /**
-     * Updating the subscription quota exactly after uploading each blog
-     */
-    console.log(`Subscription Quota updated by: ${i + 1} `)
-    await databases.updateDocument(DATABASE_ID, SUBSCRIPTION_QUOTA_COLLECTION_ID, subscriptionQuota.$id, {
-      blogs_generated: subscriptionQuota.blogs_generated + (i + 1)
-    })
+async function fetchBlogs({ subscriptionQuota, genBlog, bookEntryId, user_id, count = 6, subscription }) {
+  try {
+    for (let i = 0; i < count; i++) {
+      await new Promise((resolve) => setTimeout(resolve, BLOG_GENERATION_TIMER));
+      let blog;
 
-    console.log(`Generated/Uploaded ${i + 1} blog successfully`);
+      try {
+        blog = await genBlog();
+      } catch (error) {
+        console.error(`Failed to generate blog ${i + 1}:`, error.message || error);
+        blog = "[Placeholder blog due to temporary error - AI service unavailable]";
+      }
+
+      const blog_prompt = await blogToPromptGeneration({ blog_content: blog });
+      const blogImageUrl = await getPromptGeneratedImageUrl({ prompt: blog_prompt });
+      console.log(blogImageUrl);
+
+      await add_blog({
+        blog,
+        book_id: bookEntryId,
+        user_id,
+        blog_image: blogImageUrl,
+      });
+
+      if (subscription !== "unpaid") {
+        console.log(`Subscription Quota updated by: ${i + 1}`);
+        await databases.updateDocument(DATABASE_ID, SUBSCRIPTION_QUOTA_COLLECTION_ID, subscriptionQuota.$id, {
+          blogs_generated: subscriptionQuota.blogs_generated + (i + 1),
+        });
+        console.log(`Generated/Uploaded ${i + 1} blog successfully`);
+      }
+    }
+  } catch (error) {
+    console.error("fetchBlogs encountered an unexpected error:", error.message || error);
+    throw error; // Still throw if something else breaks, like Appwrite failing
   }
 }
+
 
 // Main AI blog generator function
-async function ai_blog_generator({ subscriptionQuota, filePath, displayName, bookEntryId, user_id,
-}) {
-  console.log(`Starting blog generation for file: ${filePath}`);
-  const fileResult = await uploadFile(filePath, displayName);
-  const { name } = fileResult.file;
+async function ai_blog_generator({ subscriptionQuota, filePath, displayName, bookEntryId, user_id, subscription }) {
+  try {
+    console.log(`Starting blog generation for file: ${filePath}`);
+    const fileResult = await uploadFile(filePath, displayName);
+    const { name } = fileResult.file;
 
-  const fileManager = new GoogleAIFileManager(GOOGLE_API_KEY);
-  await waitForFileProcessing(fileManager, name);
+    const fileManager = new GoogleAIFileManager(GOOGLE_API_KEY);
+    await waitForFileProcessing(fileManager, name);
 
-  const cache = await createCache(fileResult, displayName);
-  const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
-  const genModel = genAI.getGenerativeModelFromCachedContent(cache);
+    const cache = await createCache(fileResult, displayName);
+    const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
+    const genModel = genAI.getGenerativeModelFromCachedContent(cache);
 
-  const genBlog = async () => {
-    console.log("Generating blog content...");
-    return await generateContent(genModel, BLOG_QUERY);
-  };
+    const genBlog = async () => {
+      console.log("Generating blog content...");
+      return await generateContent(genModel, BLOG_QUERY);
+    };
 
-  await fetchBlogs({ subscriptionQuota, genBlog, bookEntryId, user_id });
-  console.log(`Uploaded all the blogs successfully blogs`);
+    await fetchBlogs({ subscriptionQuota, genBlog, bookEntryId, user_id, subscription });
+    console.log(`Uploaded all the blogs successfully.`);
+  } catch (error) {
+    console.error("ai_blog_generator failed:", error.message || error);
+    // Optionally don't rethrow here if you want the server to keep running even after this failure.
+    throw error; // If you want to fail the whole process.
+  }
 }
 
 module.exports = { ai_blog_generator };
