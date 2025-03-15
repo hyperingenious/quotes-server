@@ -1,6 +1,6 @@
 require("dotenv").config();
 const sdk = require("node-appwrite");
-const { databases, DATABASE_ID, BLOGS_COLLECTION_ID, PUBLICLY_SHARED_BLOGS_COLLECTION_ID, TOKENISATION_COLLECTION_ID, CATEGORY_COLLECTION_ID } = require("../../appwrite/appwrite");
+const { databases, DATABASE_ID, BLOGS_COLLECTION_ID, PUBLICLY_SHARED_BLOGS_COLLECTION_ID, TOKENISATION_COLLECTION_ID, CATEGORY_COLLECTION_ID, BOOKS_COLLECTION_ID } = require("../../appwrite/appwrite");
 const { invalidateToken } = require("../../helpers/helper");
 
 async function clientAppwritePOST(req, res) {
@@ -20,6 +20,15 @@ async function clientAppwritePOST(req, res) {
                     category_name
                 });
                 res.staus(200).json({ message: `${category_name} created successfully` });
+                break;
+            }
+            case 'POST_UPDATE_BOOK_CATEGORY': {
+                const { book_id, new_category_id } = res.body;
+                await databases.updateDocument(DATABASE_ID, BOOKS_COLLECTION_ID, book_id, {
+                    category: new_category_id
+                });
+                res.status(200).json({ message: "Category updated successfully" });
+                break;
             }
             case 'POST_SHARE_BLOG_PUBLICLY': {
                 const { user_name, blog_markdown, author_name, book_name, book_image, user_avatar, document_id, blog_image } = req.body
@@ -90,5 +99,3 @@ async function clientAppwritePOST(req, res) {
 }
 
 module.exports = { clientAppwritePOST }
-                break;
-            }
