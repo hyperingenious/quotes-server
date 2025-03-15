@@ -1,6 +1,6 @@
 require("dotenv").config();
 const sdk = require("node-appwrite");
-const { databases, DATABASE_ID, BLOGS_COLLECTION_ID, PUBLICLY_SHARED_BLOGS_COLLECTION_ID, TOKENISATION_COLLECTION_ID } = require("../../appwrite/appwrite");
+const { databases, DATABASE_ID, BLOGS_COLLECTION_ID, PUBLICLY_SHARED_BLOGS_COLLECTION_ID, TOKENISATION_COLLECTION_ID, CATEGORY_COLLECTION_ID } = require("../../appwrite/appwrite");
 const { invalidateToken } = require("../../helpers/helper");
 
 async function clientAppwritePOST(req, res) {
@@ -13,6 +13,14 @@ async function clientAppwritePOST(req, res) {
         const { slug } = req.body;
 
         switch (slug) {
+            case 'POST_CREATE_NEW_CATEGORY': {
+                const { category_name } = res.body;
+                await databases.createDocument(DATABASE_ID, CATEGORY_COLLECTION_ID, sdk.ID.unique(), {
+                    user_id: verifiedToken.sub,
+                    category_name
+                });
+                res.staus(200).json({ message: `${category_name} created successfully` });
+            }
             case 'POST_SHARE_BLOG_PUBLICLY': {
                 const { user_name, blog_markdown, author_name, book_name, book_image, user_avatar, document_id, blog_image } = req.body
 
