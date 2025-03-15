@@ -7,12 +7,12 @@ const { ai_blog_generator } = require("../ai/ai_blog_generator");
 const { upload_pdf } = require("../appwrite/upload/upload_appwrite");
 const parse = require("./upload/parse");
 const { add_upload_book_entry } = require("../appwrite/add/add_appwrite");
-const { databases, DATABASE_ID, FREE_CONTENT_GENERATION_ENTRIES } = require("../appwrite/appwrite");
-const { ID } = require("node-appwrite");
+const { databases, DATABASE_ID, FREE_CONTENT_GENERATION_ENTRIES, CATEGORY_COLLECTION_ID } = require("../appwrite/appwrite");
+const { ID, Query } = require("node-appwrite");
 
 async function uploadPDFRouteNew(req, res) {
     try {
-        const { blogCount, mimetype, authorName: author, bookTitle: book_name, imageUrl: book_image } = req.body;
+        const { category, blogCount, mimetype, authorName: author, bookTitle: book_name, imageUrl: book_image } = req.body;
         const { verifiedToken, subscription } = req;
 
         const filepath = path.resolve(req.file.path);
@@ -41,7 +41,16 @@ async function uploadPDFRouteNew(req, res) {
 
         const pdf_link = `https://cloud.appwrite.io/v1/storage/buckets/${process.env.BUCKET_ID}/files/${bookPDFId}/view?project=${process.env.APPWRITE_PROJECT_ID}&mode=admin`;
 
-        const bookEntryData = { user_id: verifiedToken.sub, author, book_image, book_name, pdf_link };
+        const { total, documents: [categoryDocument] } = databases.listDocuments(
+            DATABASE_ID, CATEGORY_COLLECTION_ID, [Query.select(['$id']), Query.equal('user_id', verifiedToken.sub), Query.equal('category_name', category || 'public')]
+        )
+
+        if (total < 1 || total > 1) {
+            console.error("There is no entry or more than one categories with same name");
+            return res.status(500).json({ message: "There is no entry or more than one categories with same name" })
+        }
+
+        const bookEntryData = { user_id: verifiedToken.sub, author, book_image, book_name, pdf_link, category: categoryDocument.$id };
         let bookEntryId;
         try {
             const bookEntry = await add_upload_book_entry(bookEntryData);
