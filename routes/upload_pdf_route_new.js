@@ -13,9 +13,8 @@ const {
   databases,
   DATABASE_ID,
   FREE_CONTENT_GENERATION_ENTRIES,
-  CATEGORY_COLLECTION_ID,
 } = require("../appwrite/appwrite");
-const { ID, Query } = require("node-appwrite");
+const { ID } = require("node-appwrite");
 
 async function uploadPDFRouteNew(req, res) {
   try {
