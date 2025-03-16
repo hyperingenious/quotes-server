@@ -41,7 +41,7 @@ async function uploadPDFRouteNew(req, res) {
 
         const pdf_link = `https://cloud.appwrite.io/v1/storage/buckets/${process.env.BUCKET_ID}/files/${bookPDFId}/view?project=${process.env.APPWRITE_PROJECT_ID}&mode=admin`;
 
-        const { total, documents: [categoryDocument] } = databases.listDocuments(
+        const { total, documents: [categoryDocument] } = await databases.listDocuments(
             DATABASE_ID, CATEGORY_COLLECTION_ID, [Query.select(['$id']), Query.equal('user_id', verifiedToken.sub), Query.equal('category_name', category || 'public')]
         )
 
