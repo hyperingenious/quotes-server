@@ -1,4 +1,4 @@
-const { DATABASE_ID, CHUNKS_COLLECTION_ID, databases, CONTENT_DELETION_COLLECTION_ID, BOOKS_COLLECTION_ID, BLOGS_COLLECTION_ID, SUBSCRIPTIONS_COLLECTION_ID, INITIATED_TRANSACTIONS_COLLECTION_ID, FREE_CONTENT_GENERATION_ENTRIES } = require("../appwrite");
+const { DATABASE_ID, CHUNKS_COLLECTION_ID, databases, CONTENT_DELETION_COLLECTION_ID, BOOKS_COLLECTION_ID, BLOGS_COLLECTION_ID, SUBSCRIPTIONS_COLLECTION_ID, INITIATED_TRANSACTIONS_COLLECTION_ID, FREE_CONTENT_GENERATION_ENTRIES, IMAGES_WITH_METADATA_COLLECTION_ID } = require("../appwrite");
 const sdk = require("node-appwrite");
 const { verify_token } = require("../verify/verify_appwrite");
 
@@ -163,7 +163,17 @@ async function get_initiated_transaction_by_plink_id(plink_id) {
         throw new Error(`Failed to get initiated transaction: ${error.message}`); //More informative error message
     }
 }
+async function get_images_with_keywords_match({ keywords_array }) {
+    try {
+        const data = await databases.listDocuments(DATABASE_ID, IMAGES_WITH_METADATA_COLLECTION_ID, [sdk.Query.contains('metadata', keywords_array), sdk.Query.limit(1)])
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw new Error(`Failed to get image keyword documents:${error.message}`); //More informative error message
+    }
+}
 module.exports = {
+    get_images_with_keywords_match,
     get_all_chunk_ids_with_book_id,
     get_chunk_by_id,
     get_book_document_by_id,
@@ -173,5 +183,5 @@ module.exports = {
     get_all_user_subscription,
     get_initiated_transaction_by_plink_id,
     get_all_user_initiated_transations,
-get_free_content_count
+    get_free_content_count
 }
