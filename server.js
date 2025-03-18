@@ -35,6 +35,7 @@ const invalidateSubscription = require("./middlewares/invalidateSubscription");
 const checkFileSize = require("./middlewares/checkFileSize");
 const checkFileMimetype = require("./middlewares/checkFileMimetype");
 const uploadPDFRouteNew = require("./routes/upload_pdf_route_new");
+const createPublicCategory = require("./middlewares/createPublicCategory");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -70,7 +71,7 @@ cronjob("*/10 0-5 * * *")
 app.post("/upload", invalidateToken, userSubscriptionQuota, upload_pdf_route);
 
 
-app.post('/new-upload', invalidateJwt, invalidateSubscription, checkBlogCount, saveFiles, checkFileSize, checkFileMimetype, uploadPDFRouteNew)
+app.post('/new-upload', invalidateJwt, createPublicCategory, invalidateSubscription, checkBlogCount, saveFiles, checkFileSize, checkFileMimetype, uploadPDFRouteNew)
 app.post("/generate-content", userSubscriptionQuota, generateContent);
 app.post("/delete-content", deleteContent);
 app.post("/feedback", feedback);
