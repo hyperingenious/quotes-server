@@ -22,6 +22,12 @@ async function clientAppwritePOST(req, res) {
     switch (slug) {
       case "POST_CREATE_NEW_CATEGORY": {
         const { category_name } = req.body;
+
+        if (category_name === 'public') {
+          res.status(400).json({ message: "Another 'public' category is not allowed" })
+          break;
+        }
+
         await databases.createDocument(
           DATABASE_ID,
           CATEGORY_COLLECTION_ID,
