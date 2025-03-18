@@ -8,18 +8,20 @@ const {
   BLOGS_COLLECTION_ID,
   PUBLICLY_SHARED_BLOGS_COLLECTION_ID,
   TOKENISATION_COLLECTION_ID,
+  CATEGORY_COLLECTION_ID,
 } = require("../../appwrite/appwrite");
 const { invalidateToken } = require("../../helpers/helper");
 
 async function clientAppwriteGET(req, res) {
   try {
-    console.log(req.query.slug);
+    console.log(req.query.slug)
     /**
      * Verifies the user's token using the invalidateToken helper function to ensure authentication.
      */
     const verifiedToken = await invalidateToken({ req, res });
 
     const slug = req.query.slug;
+
     if (!slug) {
       res
         .status(400)
@@ -29,8 +31,8 @@ async function clientAppwriteGET(req, res) {
       case "GET_CATEGORIES": {
         const { documents } = await databases.listDocuments(
           DATABASE_ID,
-          BOOKS_COLLECTION_ID,
-          [sdk.Query.equal("user_id", verifiedToken.sub)]
+          CATEGORY_COLLECTION_ID,
+          [sdk.Query.limit(1000), sdk.Query.equal("user_id", verifiedToken.sub)]
         );
         res.status(200).json(documents);
         break;
@@ -136,15 +138,15 @@ async function clientAppwriteGET(req, res) {
         const { book_id, blog_exception, isANoContentBlog } = req.query;
         const filters = isANoContentBlog
           ? [
-              sdk.Query.equal("books", [book_id]),
-              sdk.Query.notEqual("$id", [blog_exception]),
-            ]
+            sdk.Query.equal("books", [book_id]),
+            sdk.Query.notEqual("$id", [blog_exception]),
+          ]
           : [
-              sdk.Query.equal("user_id", [verifiedToken.sub]),
-              sdk.Query.equal("books", [book_id]),
-              sdk.Query.notEqual("$id", [blog_exception]),
-              sdk.Query.isNull("isRead"),
-            ];
+            sdk.Query.equal("user_id", [verifiedToken.sub]),
+            sdk.Query.equal("books", [book_id]),
+            sdk.Query.notEqual("$id", [blog_exception]),
+            sdk.Query.isNull("isRead"),
+          ];
         const blogs = await databases.listDocuments(
           DATABASE_ID,
           BLOGS_COLLECTION_ID,
