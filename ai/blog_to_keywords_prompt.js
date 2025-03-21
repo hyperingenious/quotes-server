@@ -9,7 +9,7 @@ async function blogToKeywordsPrompt({ blog_content }) {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     // Revised instruction for more image-friendly output
-    const prompt = `Using the below blog content make a string of keywords comma seprated keywords which can be given to a LLM to generate images, such that the image match the context of blog:
+    const prompt = `Using the below blog content make a string of keywords comma seprated keywords which can be given to a LLM to generate images, such that the image match the context of blog, give only few few keywords nor more than 10 or maximum, must represent the contenet of the blog:
 Blog Content: ${blog_content}`;
 
 
