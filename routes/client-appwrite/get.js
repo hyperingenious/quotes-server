@@ -87,9 +87,10 @@ async function clientAppwriteGET(req, res) {
               verifiedToken.sub,
               "66dbf6d30kewiw04e3ii4",
             ]),
+            sdk.Query.limit(1000000)
           ]
         );
-
+        console.log(documents)
         for (let i = 0; i < documents.length; i++) {
           const current_document = documents[i];
           const { documents: blogs } = await databases.listDocuments(
