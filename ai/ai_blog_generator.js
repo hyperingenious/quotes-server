@@ -17,6 +17,7 @@ const { add_blog } = require("../appwrite/add/add_appwrite");
 const { databases, DATABASE_ID, SUBSCRIPTION_QUOTA_COLLECTION_ID } = require("../appwrite/appwrite");
 const { blogToKeywordsPrompt } = require("./blog_to_keywords_prompt");
 const { get_images_with_keywords_match } = require("../appwrite/get/get_appwrite");
+const { get_a_image_link } = require("../helpers/brute");
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
@@ -116,18 +117,7 @@ async function fetchBlogs({ subscriptionQuota, genBlog, bookEntryId, user_id, co
         blog = "[Placeholder blog due to temporary error - AI service unavailable]";
       }
 
-      let blogImageUrl;
-      const keywords_array = await blogToKeywordsPrompt({ blog_content: blog });
-      console.log("Keywords Array", keywords_array);
-      const data = await get_images_with_keywords_match({ keywords_array })
-
-      if (data.total === 0) {
-        const blog_prompt = await blogToPromptGeneration({ blog_content: blog });
-        blogImageUrl = await getPromptGeneratedImageUrl({ prompt: blog_prompt });
-      } else {
-        blogImageUrl = data.documents[0].image_link;
-      }
-
+      const blogImageUrl =  get_a_image_link();
 
       await add_blog({
         blog,
