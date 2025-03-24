@@ -23,8 +23,10 @@ async function clientAppwritePOST(req, res) {
       case "POST_CREATE_NEW_CATEGORY": {
         const { category_name } = req.body;
 
-        if (category_name === 'public') {
-          res.status(400).json({ message: "Another 'public' category is not allowed" })
+        if (category_name === "public") {
+          res
+            .status(400)
+            .json({ message: "Another 'public' category is not allowed" });
           break;
         }
 
@@ -183,9 +185,20 @@ async function clientAppwritePOST(req, res) {
             message: "document_id is missing in the body",
           });
         }
-        await databases.updateDocument(DATABASE_ID, BLOGS_COLLECTION_ID, id, {
-          isRead: true,
-        });
+
+        const doc = await databases.getDocument(
+          DATABASE_ID, BLOGS_COLLECTION_ID, id, 
+        )
+
+        await databases.updateDocument(DATABASE_ID, BLOGS_COLLECTION_ID, id, 
+    {
+      blog_markdown: doc.blog_markdown,
+      user_id: doc.user_id,
+      blog_image: doc.blog_image,
+      isRead: true,
+      books: doc.books.$id
+    }
+        );
         res.status(200).json({ res: null });
         break;
       }
