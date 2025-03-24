@@ -14,7 +14,7 @@ const { invalidateToken } = require("../../helpers/helper");
 
 async function clientAppwriteGET(req, res) {
   try {
-    console.log(req.query.slug)
+    console.log(req.query.slug);
     /**
      * Verifies the user's token using the invalidateToken helper function to ensure authentication.
      */
@@ -87,10 +87,9 @@ async function clientAppwriteGET(req, res) {
               verifiedToken.sub,
               "66dbf6d30kewiw04e3ii4",
             ]),
-            sdk.Query.limit(1000000)
+            sdk.Query.limit(1000000),
           ]
         );
-        console.log(documents)
         for (let i = 0; i < documents.length; i++) {
           const current_document = documents[i];
           const { documents: blogs } = await databases.listDocuments(
@@ -118,7 +117,6 @@ async function clientAppwriteGET(req, res) {
           BLOGS_COLLECTION_ID,
           id
         );
-
         if (
           doc.user_id !== "66dbf6d30kewiw04e3ii4" &&
           doc.user_id !== verifiedToken.sub
@@ -126,12 +124,10 @@ async function clientAppwriteGET(req, res) {
           throw Error("The Blog Does not belong to you");
         }
 
-        res
-          .status(200)
-          .json({
-            blog: doc,
-            isANoContentBlog: doc.user_id === "66dbf6d30kewiw04e3ii4",
-          });
+        res.status(200).json({
+          blog: doc,
+          isANoContentBlog: doc.user_id === "66dbf6d30kewiw04e3ii4",
+        });
         break;
       }
 
@@ -139,15 +135,15 @@ async function clientAppwriteGET(req, res) {
         const { book_id, blog_exception, isANoContentBlog } = req.query;
         const filters = isANoContentBlog
           ? [
-            sdk.Query.equal("books", [book_id]),
-            sdk.Query.notEqual("$id", [blog_exception]),
-          ]
+              sdk.Query.equal("books", [book_id]),
+              sdk.Query.notEqual("$id", [blog_exception]),
+            ]
           : [
-            sdk.Query.equal("user_id", [verifiedToken.sub]),
-            sdk.Query.equal("books", [book_id]),
-            sdk.Query.notEqual("$id", [blog_exception]),
-            sdk.Query.isNull("isRead"),
-          ];
+              sdk.Query.equal("user_id", [verifiedToken.sub]),
+              sdk.Query.equal("books", [book_id]),
+              sdk.Query.notEqual("$id", [blog_exception]),
+              sdk.Query.isNull("isRead"),
+            ];
         const blogs = await databases.listDocuments(
           DATABASE_ID,
           BLOGS_COLLECTION_ID,
