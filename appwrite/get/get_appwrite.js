@@ -172,6 +172,22 @@ async function get_images_with_keywords_match({ keywords_array }) {
         throw new Error(`Failed to get image keyword documents:${error.message}`); //More informative error message
     }
 }
+
+async function get_all_images_url() {
+   try {
+    const links = [];
+    const {documents,total}= await databases.listDocuments(DATABASE_ID, IMAGES_WITH_METADATA_COLLECTION_ID, [sdk.Query.select(['image_link']), sdk.Query.limit(1500)])
+
+for(let i = 0; i<total; ++i){
+links.push(documents[i].image_link)
+}
+
+return links;
+   } catch (error) {
+    console.error(error)
+throw error    
+   } 
+}
 module.exports = {
     get_images_with_keywords_match,
     get_all_chunk_ids_with_book_id,
@@ -183,5 +199,6 @@ module.exports = {
     get_all_user_subscription,
     get_initiated_transaction_by_plink_id,
     get_all_user_initiated_transations,
-    get_free_content_count
+    get_free_content_count,
+get_all_images_url
 }
