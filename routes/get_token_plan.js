@@ -29,7 +29,7 @@ async function getTokenPlan(req, res) {
     const tokenCount = await getTokenCount(text)
 
     if (tokenCount < 50_000) {
-        await fs.unlink(filepath);
+        await fs.promises.unlink(filepath);
         return res.status(400).send("Your book should at-least be 100 page long");
     }
 
