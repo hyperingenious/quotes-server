@@ -1,6 +1,5 @@
 const {
   FileState,
-  GoogleAICacheManager,
   GoogleAIFileManager,
 } = require("@google/generative-ai/server");
 
@@ -26,40 +25,6 @@ const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const ai = new GoogleGenAI({ apiKey: GOOGLE_API_KEY });
 let generatedBlogTitles = [];
 
-
-// Upload a file to Google AI
-async function uploadFile(filePath, displayName) {
-  const fileManager = new GoogleAIFileManager(GOOGLE_API_KEY);
-  try {
-    console.log("Uploading file to Google AI...");
-    const fileResult = await fileManager.uploadFile(filePath, {
-      displayName,
-      mimeType: "text/plain",
-    });
-    console.log(`File uploaded. URI: ${fileResult.file.uri}`);
-    return fileResult;
-  } catch (error) {
-    console.error("File upload error:", error);
-    throw error;
-  }
-}
-
-// Wait for file processing to complete
-async function waitForFileProcessing(fileManager, name) {
-  try {
-    let file = await fileManager.getFile(name);
-    while (file.state === FileState.PROCESSING) {
-      console.log("Processing file...");
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      file = await fileManager.getFile(name);
-    }
-    console.log("File processed:", file.uri);
-    return file;
-  } catch (error) {
-    console.error("Error during file processing:", error);
-    throw error;
-  }
-}
 
 async function fetchBlogs({ subscriptionQuota, genBlog, bookEntryId, user_id, count = 6, subscription }) {
   try {
