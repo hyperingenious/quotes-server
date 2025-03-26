@@ -1,9 +1,4 @@
 const {
-  FileState,
-  GoogleAIFileManager,
-} = require("@google/generative-ai/server");
-
-const {
   GoogleGenAI,
   createUserContent,
   createPartFromUri,
