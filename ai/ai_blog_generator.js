@@ -1,4 +1,3 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
 const {
   FileState,
   GoogleAICacheManager,
@@ -6,20 +5,27 @@ const {
 } = require("@google/generative-ai/server");
 
 const {
+  GoogleGenAI,
+  createUserContent,
+  createPartFromUri,
+}
+  = require("@google/genai")
+
+const {
   BLOG_GENERATION_TIMER,
   BLOG_QUERY,
   SYSTEM_INSTRUCTIONS,
+  BLOG_QUERY_NO_REPEAT,
 } = require("../config/config");
 
-const { getPromptGeneratedImageUrl } = require("./image_generation");
-const { blogToPromptGeneration } = require("./blog_to_prompt");
 const { add_blog } = require("../appwrite/add/add_appwrite");
 const { databases, DATABASE_ID, SUBSCRIPTION_QUOTA_COLLECTION_ID } = require("../appwrite/appwrite");
-const { blogToKeywordsPrompt } = require("./blog_to_keywords_prompt");
-const { get_images_with_keywords_match } = require("../appwrite/get/get_appwrite");
 const { get_a_image_link } = require("../helpers/brute");
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const ai = new GoogleGenAI({ apiKey: GOOGLE_API_KEY });
+let generatedBlogTitles = [];
+
 
 // Upload a file to Google AI
 async function uploadFile(filePath, displayName) {
@@ -55,55 +61,6 @@ async function waitForFileProcessing(fileManager, name) {
   }
 }
 
-// Create cache for content generation
-async function createCache(fileResult, displayName) {
-  const cacheManager = new GoogleAICacheManager(GOOGLE_API_KEY);
-  const model = "models/gemini-1.5-flash-001";
-  const systemInstruction = SYSTEM_INSTRUCTIONS;
-
-  try {
-    return await cacheManager.create({
-      model,
-      displayName,
-      systemInstruction,
-      contents: [
-        {
-          role: "user",
-          parts: [
-            {
-              fileData: {
-                mimeType: fileResult.file.mimeType,
-                fileUri: fileResult.file.uri,
-              },
-            },
-          ],
-        },
-      ],
-      ttlSeconds: 600,
-    });
-  } catch (error) {
-    console.error("Cache creation error:", error);
-    throw error;
-  }
-}
-
-async function generateContent(genModel, query) {
-  try {
-    const result = await genModel.generateContent({
-      contents: [{ role: "user", parts: [{ text: query }] }],
-    });
-    return result.response.text();
-  } catch (error) {
-    console.error("Content generation error:", error.message || error);
-    if (error.status === 503) {
-      // Graceful fallback for Gemini overload
-      return "[Blog generation temporarily unavailable - AI service overloaded]";
-    }
-    throw error; // For other unexpected errors, still throw (optional)
-  }
-}
-
-
 async function fetchBlogs({ subscriptionQuota, genBlog, bookEntryId, user_id, count = 6, subscription }) {
   try {
     for (let i = 0; i < count; i++) {
@@ -117,7 +74,7 @@ async function fetchBlogs({ subscriptionQuota, genBlog, bookEntryId, user_id, co
         blog = "[Placeholder blog due to temporary error - AI service unavailable]";
       }
 
-      const blogImageUrl =  get_a_image_link();
+      const blogImageUrl = get_a_image_link();
 
       await add_blog({
         blog,
@@ -140,32 +97,52 @@ async function fetchBlogs({ subscriptionQuota, genBlog, bookEntryId, user_id, co
   }
 }
 
-
-// Main AI blog generator function
-async function ai_blog_generator({ subscriptionQuota, filePath, displayName, bookEntryId, user_id, subscription }) {
+async function ai_blog_generator({ subscriptionQuota, filePath, bookEntryId, user_id, subscription }) {
   try {
-    console.log(`Starting blog generation for file: ${filePath}`);
-    const fileResult = await uploadFile(filePath, displayName);
-    const { name } = fileResult.file;
+    const doc = await ai.files.upload({
+      file: filePath,
+      config: { mimeType: "text/plain" },
+    });
+    console.log("Uploaded file name:", doc.name);
 
-    const fileManager = new GoogleAIFileManager(GOOGLE_API_KEY);
-    await waitForFileProcessing(fileManager, name);
+    const modelName = "gemini-1.5-flash-002";
+    const systemInstruction = SYSTEM_INSTRUCTIONS;
+    const query = BLOG_QUERY;
+    const noRepeatBlogQuery = BLOG_QUERY_NO_REPEAT;
 
-    const cache = await createCache(fileResult, displayName);
-    const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
-    const genModel = genAI.getGenerativeModelFromCachedContent(cache);
+
+    const cache = await ai.caches.create({
+      model: modelName,
+      config: {
+        contents: createUserContent(createPartFromUri(doc.uri, doc.mimeType)),
+        systemInstruction,
+      },
+    });
+
+    console.log("Cache created:", cache);
 
     const genBlog = async () => {
-      console.log("Generating blog content...");
-      return await generateContent(genModel, BLOG_QUERY);
-    };
+      const modifedQueryToPreventBlogRepetetion = generatedBlogTitles.length === 0 ? query : `${noRepeatBlogQuery}${generatedBlogTitles.join('|')}`;
 
-    await fetchBlogs({ subscriptionQuota, genBlog, bookEntryId, user_id, subscription });
-    console.log(`Uploaded all the blogs successfully.`);
+      const response = await ai.models.generateContent({
+        model: modelName,
+        contents: modifedQueryToPreventBlogRepetetion,
+        config: { cachedContent: cache.name },
+      });
+
+      const blog = response.text;
+      generatedBlogTitles.push(blog.substring(0, 70))
+      return blog;
+    }
+
+    await fetchBlogs({ genBlog, user_id, bookEntryId, subscription, subscriptionQuota })
+
+    await ai.caches.delete({ name: cache.name });
+    console.log('Cache deleted successfully!!')
+
   } catch (error) {
     console.error("ai_blog_generator failed:", error.message || error);
-    // Optionally don't rethrow here if you want the server to keep running even after this failure.
-    throw error; // If you want to fail the whole process.
+    throw error;
   }
 }
 
