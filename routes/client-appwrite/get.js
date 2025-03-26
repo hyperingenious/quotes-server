@@ -50,7 +50,6 @@ async function clientAppwriteGET(req, res) {
 
       case "GET_FETCH_BLOGS": {
         const offset = req.query.offset;
-        const NO_BLOGS_ID = "66dbf6d30kewiw04e3ii4";
         const { documents } = await databases.listDocuments(
           DATABASE_ID,
           BLOGS_COLLECTION_ID,
@@ -58,22 +57,10 @@ async function clientAppwriteGET(req, res) {
             sdk.Query.limit(7),
             sdk.Query.offset(offset * 7),
             sdk.Query.orderDesc(),
-            sdk.Query.equal("user_id", [verifiedToken.sub]),
+            sdk.Query.equal("user_id", [verifiedToken.sub, 'user_2ur1m5I0EdV5hjQOY5CS1QIbMuF']),
             sdk.Query.isNull("isRead"),
           ]
         );
-
-        if (documents.length === 0) {
-          const { documents: noContentDocuments } =
-            await databases.listDocuments(DATABASE_ID, BLOGS_COLLECTION_ID, [
-              sdk.Query.limit(7),
-              sdk.Query.offset(offset * 7),
-              sdk.Query.orderDesc(),
-              sdk.Query.equal("user_id", [NO_BLOGS_ID]),
-            ]);
-          res.status(200).json(noContentDocuments);
-          break;
-        }
         res.status(200).json(documents);
         break;
       }
@@ -85,11 +72,12 @@ async function clientAppwriteGET(req, res) {
           [
             sdk.Query.equal("user_id", [
               verifiedToken.sub,
-              "66dbf6d30kewiw04e3ii4",
+              "user_2ur1m5I0EdV5hjQOY5CS1QIbMuF",
             ]),
             sdk.Query.limit(1000000),
           ]
         );
+
         for (let i = 0; i < documents.length; i++) {
           const current_document = documents[i];
           const { documents: blogs } = await databases.listDocuments(
@@ -97,10 +85,6 @@ async function clientAppwriteGET(req, res) {
             BLOGS_COLLECTION_ID,
             [
               sdk.Query.equal("books", current_document.$id),
-              sdk.Query.equal("user_id", [
-                verifiedToken.sub,
-                "66dbf6d30kewiw04e3ii4",
-              ]),
               sdk.Query.select(["$id"]),
             ]
           );
@@ -118,7 +102,7 @@ async function clientAppwriteGET(req, res) {
           id
         );
         if (
-          doc.user_id !== "66dbf6d30kewiw04e3ii4" &&
+          doc.user_id !== "user_2ur1m5I0EdV5hjQOY5CS1QIbMuF" &&
           doc.user_id !== verifiedToken.sub
         ) {
           throw Error("The Blog Does not belong to you");
@@ -126,7 +110,7 @@ async function clientAppwriteGET(req, res) {
 
         res.status(200).json({
           blog: doc,
-          isANoContentBlog: doc.user_id === "66dbf6d30kewiw04e3ii4",
+          isANoContentBlog: doc.user_id === "user_2ur1m5I0EdV5hjQOY5CS1QIbMuF",
         });
         break;
       }
@@ -135,15 +119,15 @@ async function clientAppwriteGET(req, res) {
         const { book_id, blog_exception, isANoContentBlog } = req.query;
         const filters = isANoContentBlog
           ? [
-              sdk.Query.equal("books", [book_id]),
-              sdk.Query.notEqual("$id", [blog_exception]),
-            ]
+            sdk.Query.equal("books", [book_id]),
+            sdk.Query.notEqual("$id", [blog_exception]),
+          ]
           : [
-              sdk.Query.equal("user_id", [verifiedToken.sub]),
-              sdk.Query.equal("books", [book_id]),
-              sdk.Query.notEqual("$id", [blog_exception]),
-              sdk.Query.isNull("isRead"),
-            ];
+            sdk.Query.equal("user_id", [verifiedToken.sub]),
+            sdk.Query.equal("books", [book_id]),
+            sdk.Query.notEqual("$id", [blog_exception]),
+            sdk.Query.isNull("isRead"),
+          ];
         const blogs = await databases.listDocuments(
           DATABASE_ID,
           BLOGS_COLLECTION_ID,
