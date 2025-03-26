@@ -82,7 +82,7 @@ async function ai_blog_generator({ subscriptionQuota, filePath, bookEntryId, use
     console.log("Cache created:", cache);
 
     const genBlog = async () => {
-      const modifedQueryToPreventBlogRepetetion = generatedBlogTitles.length === 0 ? query : `${noRepeatBlogQuery}${generatedBlogTitles.join('|')}`;
+      const modifedQueryToPreventBlogRepetetion = generatedBlogTitles.length === 0 ? query : `${noRepeatBlogQuery}${generatedBlogTitles.join(', Title:')}`;
 
       const response = await ai.models.generateContent({
         model: modelName,
