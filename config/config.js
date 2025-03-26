@@ -1,6 +1,12 @@
 const BLOG_GENERATION_TIMER = 7000;
 const BLOG_QUERY = `From the Given text you you need to generate a blog markdown such that you'll pick a random piece from extract from the text and craft a blog out of that such that you'll craft it in a manner in which you're not proving any summary of the text rather a blog post that will contain exact lines from the text such that they can be read in the isolation from the book as a story , at last I want to say try not to put your own conclusions but start it with the small introcution and the small end conclusion, "also make each blog is totally different from the last one's" topic, make sure it's long enough that you're not juggling 2 random para and making a blog, make long enough interesting teaching story, at the end remember to keep the previous blog in mind so you by mistake don't generate two blogs with the same title`;
 
+const BLOG_QUERY_NO_REPEAT = `From the Given text you you need to generate a blog markdown such that you'll pick a random piece from extract from the text and craft a blog out of that such that you'll craft it in a manner in which you're not proving any summary of the text rather a blog post that will contain exact lines from the text such that they can be read in the isolation from the book as a story , at last I want to say try not to put your own conclusions but start it with the small introcution and the small end conclusion, "also make each blog is totally different from the last one's" topic, make sure it's long enough that you're not juggling 2 random para and making a blog, make long enough interesting teaching story, at the end remember to keep the previous blog in mind so you by mistake don't generate two blogs with the same title,
+
+below are the blog titles you've generated already to make sure we you don't repeat blogs on same topics, title separated by '|'
+`;
+
+
 const SYSTEM_INSTRUCTIONS = `1. Input Type: The input will be a text or PDF document.
 1. Output Format: The output should be a blog markdown, which is structured and engaging.
 2. Tone: The blog should be written in an engaging, reader-friendly, and insightful tone.
@@ -22,4 +28,5 @@ module.exports = {
   BLOG_QUERY,
   CONTENT_DELETION_GAP,
   SYSTEM_INSTRUCTIONS,
+  BLOG_QUERY_NO_REPEAT
 };
