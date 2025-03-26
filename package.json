@@ -11,6 +11,7 @@
   "description": "",
   "dependencies": {
     "@clerk/backend": "^1.23.5",
+    "@google/genai": "^0.6.1",
     "@google/generative-ai": "^0.21.0",
     "@gxl/epub-parser": "^2.0.4",
     "axios": "^1.7.8",
