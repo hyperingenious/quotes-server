@@ -21,7 +21,7 @@ async function invalidateToken({ req, res }) {
 
         const verifiedToken = await verifyToken(token, {
             jwtKey: process.env.CLERK_JWT_KEY,
-            authorizedParties: ['http://localhost:3001', 'http://localhost:3000', "https://purplenight.hyperingenious.tech"],
+            authorizedParties: ['http://localhost:3001', 'http://localhost:3000', "https://purplenight.hyperingenious.tech", "https://purplenight.live"],
         });
 
         /**
